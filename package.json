@@ -1,0 +1,13 @@
+{
+  "name": "aetherscript",
+  "private": true,
+  "devDependencies": {
+    "@babel/parser": "^7.29.0",
+    "@babel/types": "^7.29.0",
+    "@types/bun": "latest",
+    "mitata": "^1.0.34"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
