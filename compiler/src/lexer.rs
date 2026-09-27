@@ -4,7 +4,7 @@ pub struct Token {
 }
 
 pub enum TokenKind {
-    Space,
+    // Space,
     Identifier(String),
     Literal(Literal),
     WordSymbol(WordSymbol),
@@ -37,31 +37,31 @@ pub enum WordSymbol {
 }
 
 pub enum Symbol {
-    Semi,
-    Comma,
-    Dot,
-    OpenParen,
-    CloseParen,
-    OpenBrace,
-    CloseBrace,
-    OpenBracket,
-    CloseBracket,
-    At,
-    Pound,
-    Tilde,
-    Question,
-    Colon,
-    Dollar,
-    Eq,
-    Bang,
-    Lt,
-    Gt,
-    Plus,
-    Minus,
-    Star,
-    Slash,
-    Percent,
-    Or,
-    And,
-    Caret,
+    Semi,         // ;
+    Comma,        // ,
+    Dot,          // .
+    OpenParen,    // (
+    CloseParen,   // )
+    OpenBrace,    // {
+    CloseBrace,   // }
+    OpenBracket,  // [
+    CloseBracket, // ]
+    At,           // @
+    Pound,        // #
+    Tilde,        // ~
+    Question,     // ?
+    Colon,        // :
+    Dollar,       // $
+    Eq,           // =
+    Bang,         // !
+    Lt,           // <
+    Gt,           // >
+    Plus,         // +
+    Minus,        // -
+    Star,         // *
+    Slash,        // /
+    Percent,      // %
+    Or,           // |
+    And,          // &
+    Caret,        // ^
 }
