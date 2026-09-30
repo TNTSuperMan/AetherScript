@@ -11,6 +11,26 @@ fn is_identifier_char<const IS_FIRST: bool>(c: char) -> bool {
     (!IS_FIRST && c.is_ascii_digit()) || c.is_ascii_alphabetic() || c == '_'
 }
 
+fn try_into_word_symbol(s: &str) -> Option<WordSymbol> {
+    Some(match s {
+        "let" => WordSymbol::Let,
+        "mut" => WordSymbol::Mut,
+        "await" => WordSymbol::Await,
+        "async" => WordSymbol::Async,
+        "fn" => WordSymbol::Function,
+        "return" => WordSymbol::Return,
+        "struct" => WordSymbol::Struct,
+        "enum" => WordSymbol::Enum,
+
+        "num" => WordSymbol::Num,
+        "smi" => WordSymbol::Smi,
+        "str" => WordSymbol::Str,
+        "bool" => WordSymbol::Bool,
+        "unique" => WordSymbol::Unique,
+        _ => return None,
+    })
+}
+
 fn try_into_symbol(c: char) -> Option<Symbol> {
     Some(match c {
         ';' => Symbol::Semi,
@@ -72,23 +92,10 @@ impl<'a> LexerParser<'a> {
                         );
                         str
                     };
-                    match identifier.as_str() {
-                        "let" => TokenKind::WordSymbol(WordSymbol::Let),
-                        "mut" => TokenKind::WordSymbol(WordSymbol::Mut),
-                        "await" => TokenKind::WordSymbol(WordSymbol::Await),
-                        "async" => TokenKind::WordSymbol(WordSymbol::Async),
-                        "fn" => TokenKind::WordSymbol(WordSymbol::Function),
-                        "return" => TokenKind::WordSymbol(WordSymbol::Return),
-                        "struct" => TokenKind::WordSymbol(WordSymbol::Struct),
-                        "enum" => TokenKind::WordSymbol(WordSymbol::Enum),
-
-                        "num" => TokenKind::WordSymbol(WordSymbol::Num),
-                        "smi" => TokenKind::WordSymbol(WordSymbol::Smi),
-                        "str" => TokenKind::WordSymbol(WordSymbol::Str),
-                        "bool" => TokenKind::WordSymbol(WordSymbol::Bool),
-                        "unique" => TokenKind::WordSymbol(WordSymbol::Unique),
-
-                        _ => TokenKind::Identifier(self.ids.get_or_insert(identifier)),
+                    if let Some(sym) = try_into_word_symbol(&identifier) {
+                        TokenKind::WordSymbol(sym)
+                    } else {
+                        TokenKind::Identifier(self.ids.get_or_insert(identifier))
                     }
                 }
                 c => match try_into_symbol(c) {
