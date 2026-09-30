@@ -1,3 +1,7 @@
+mod interner;
+mod iter_while;
+mod parser;
+
 pub struct Token {
     pub kind: TokenKind,
     pub at: usize,
@@ -20,7 +24,7 @@ pub enum Literal {
 
 pub enum WordSymbol {
     Let,
-    Mutable,
+    Mut,
     Await,
     Async,
     Function,
