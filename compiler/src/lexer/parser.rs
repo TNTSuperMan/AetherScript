@@ -99,13 +99,8 @@ impl<'a> LexerParser<'a> {
                         TokenKind::Identifier(self.ids.get_or_insert(identifier))
                     }
                 }
-                c => {
-                    if let Some(sym) = try_into_symbol(c) {
-                        TokenKind::Symbol(sym)
-                    } else {
-                        return Err(LexerError::UnknownChar(c));
-                    }
-                }
+                c if let Some(sym) = try_into_symbol(c) => TokenKind::Symbol(sym),
+                _ => return Err(LexerError::UnknownChar(c)),
             };
             self.toks.push(Token { kind, at });
         }
