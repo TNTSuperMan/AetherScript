@@ -1,22 +1,22 @@
-# my lang concepts
+# AetherScript
 
-## コンセプト(日本語)
-- より安全で堅牢なJavaScript
-- Rustライク文法(borrow checkerまでは無い)
-- 副作用等を追跡することで、より高度な最適化・インライン化を行う
+## Vision
+- AltJS (source-to-source compiler targeting JavaScript) that empowers you to write JavaScript more safely and robustly
+- Rust-like syntax (no borrow checker)
+- Track side effect for optimize
 
-## code
+## Code
 ```
 // inline comment
 /*
   multi line comment
 */
-fn func(mut index: smi, counter: mut Box<smi>, mut insts: [Inst]) { // mut var, mut ref, mut var
-    index += 1; // local mutate
-    counter.inner += 1; // global mutate
-    
-    // insts.push(""); // immutable on global, error
-    insts = insts[index..]; // local mutate, ok
+fn func(counter: mut Box<smi>, mut insts: [Inst]) {
+    // counter = Box::new(0); // variable mutation, it's ng
+    counter.inner += 1; // reference mutation, it's ok
+
+    insts = insts[(counter.inner)..]; // it's ok
+    // insts.push(Inst::End) // it's ng
 
     let inst: Inst = insts[0];
     if inst == Inst::End {
@@ -31,15 +31,14 @@ fn func(mut index: smi, counter: mut Box<smi>, mut insts: [Inst]) { // mut var, 
 }
 
 async fn get_example(): str {
-    let response = match await fetch("https://example.com") {
-        AsyncResult::Fullfield(response) => response,
-        AsyncResult::Rejected(err) => throw err,
-    };
-    (await response.text()).unwrap()
+    match await fetch("https://example.com") {
+        AsyncResult::Fullfield(response) => (await response.text()).unwrap(),
+        AsyncResult::Rejected(err) => panic!(err),
+    }
 }
 
 struct Box<T> {
-    inner: <T>
+    inner: T
 }
 impl<T> Box<T> {
     pub fn new(val: T): Box {
@@ -61,10 +60,10 @@ impl<T: Clone> Clone for Option<T> {
 }
 ```
 
-## types
+## Types
 
-### primitive
-can't create mutable reference, need Box
+### Primitive
+Can't create direct mutable reference, requires Box
 - num
 - smi
 - str
@@ -72,8 +71,8 @@ can't create mutable reference, need Box
 - func
 - unique (symbol)
 
-### imprimitive
-can create mutatble reference
+### Object
+Can create direct mutable reference
 - \[T\] (array)
 - instance
   - struct
@@ -83,7 +82,7 @@ can create mutatble reference
     - Result
 - tuple
 
-## function attributes
+## Function attributes
 ```
 #[inline(always)]
 #[inline(auto)]
