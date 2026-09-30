@@ -4,8 +4,11 @@ use std::{
 };
 
 use crate::lexer::{
-    Symbol, Token, TokenKind, WordSymbol, chars_while::CharsWhile, error::LexerError,
+    Literal, Symbol, Token, TokenKind, WordSymbol,
+    chars_while::CharsWhile,
+    error::LexerError,
     interner::IdentifierInterner,
+    num::{TryToNumstrResult, try_iter_to_numstr},
 };
 
 fn is_identifier_char<const IS_FIRST: bool>(c: char) -> bool {
@@ -97,6 +100,15 @@ impl<'a> LexerParser<'a> {
                         TokenKind::WordSymbol(sym)
                     } else {
                         TokenKind::Identifier(self.ids.get_or_insert(identifier))
+                    }
+                }
+                c if c.is_ascii_digit() || c == '-' => {
+                    match try_iter_to_numstr(c, &mut self.iter) {
+                        TryToNumstrResult::Ok(numstr) => todo!(),
+                        TryToNumstrResult::MinusSymbol => TokenKind::Symbol(Symbol::Minus),
+                        TryToNumstrResult::IncorrectSyntax(msg, at) => {
+                            return Err(LexerError::Syntax(msg, at));
+                        }
                     }
                 }
                 c if let Some(sym) = try_into_symbol(c) => TokenKind::Symbol(sym),

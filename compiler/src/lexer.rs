@@ -7,6 +7,7 @@ use crate::lexer::{
 mod chars_while;
 mod error;
 mod interner;
+mod num;
 mod parser;
 
 pub fn parse_to_lexer(code: &str) -> Result<(Vec<Token>, IdentifierInterner), LexerError> {
