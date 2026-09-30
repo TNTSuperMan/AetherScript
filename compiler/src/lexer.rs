@@ -1,5 +1,5 @@
 use crate::lexer::{
-    interner::{LiteralId, LiteralInterner},
+    interner::{IdentifierId, IdentifierInterner},
     parser::LexerParser,
 };
 
@@ -7,7 +7,7 @@ mod chars_while;
 mod interner;
 mod parser;
 
-pub fn parse_to_lexer(code: &str) -> (Vec<Token>, LiteralInterner) {
+pub fn parse_to_lexer(code: &str) -> (Vec<Token>, IdentifierInterner) {
     let mut parser = LexerParser::new(code);
     parser.parse();
     parser.take_results()
@@ -22,7 +22,7 @@ pub struct Token {
 #[derive(Debug, Clone)]
 pub enum TokenKind {
     // Space,
-    Identifier(LiteralId),
+    Identifier(IdentifierId),
     Literal(Literal),
     WordSymbol(WordSymbol),
     Symbol(Symbol),

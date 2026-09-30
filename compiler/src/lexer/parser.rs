@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::lexer::{
-    Symbol, Token, TokenKind, WordSymbol, chars_while::CharsWhile, interner::LiteralInterner,
+    Symbol, Token, TokenKind, WordSymbol, chars_while::CharsWhile, interner::IdentifierInterner,
 };
 
 fn is_identifier_char<const IS_FIRST: bool>(c: char) -> bool {
@@ -46,7 +46,7 @@ fn try_into_symbol(c: char) -> Option<Symbol> {
 
 pub struct LexerParser<'a> {
     iter: Peekable<Enumerate<Chars<'a>>>,
-    literals: LiteralInterner,
+    ids: IdentifierInterner,
     toks: Vec<Token>,
 }
 
@@ -54,7 +54,7 @@ impl<'a> LexerParser<'a> {
     pub fn new(code: &'a str) -> Self {
         LexerParser {
             iter: code.chars().enumerate().peekable(),
-            literals: LiteralInterner::new(),
+            ids: IdentifierInterner::new(),
             toks: vec![],
         }
     }
@@ -88,7 +88,7 @@ impl<'a> LexerParser<'a> {
                         "bool" => TokenKind::WordSymbol(WordSymbol::Bool),
                         "unique" => TokenKind::WordSymbol(WordSymbol::Unique),
 
-                        _ => TokenKind::Identifier(self.literals.get_or_insert(identifier)),
+                        _ => TokenKind::Identifier(self.ids.get_or_insert(identifier)),
                     }
                 }
                 c => match try_into_symbol(c) {
@@ -99,7 +99,7 @@ impl<'a> LexerParser<'a> {
             self.toks.push(Token { kind, at });
         }
     }
-    pub fn take_results(self) -> (Vec<Token>, LiteralInterner) {
-        (self.toks, self.literals)
+    pub fn take_results(self) -> (Vec<Token>, IdentifierInterner) {
+        (self.toks, self.ids)
     }
 }
