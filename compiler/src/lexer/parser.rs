@@ -107,12 +107,17 @@ impl<'a> LexerParser<'a> {
                         TryToNumstrResult::Ok(numstr) => todo!(),
                         TryToNumstrResult::MinusSymbol => TokenKind::Symbol(Symbol::Minus),
                         TryToNumstrResult::IncorrectSyntax(msg, at) => {
-                            return Err(LexerError::Syntax(msg, at));
+                            return Err(LexerError { at, message: msg });
                         }
                     }
                 }
                 c if let Some(sym) = try_into_symbol(c) => TokenKind::Symbol(sym),
-                _ => return Err(LexerError::UnknownChar(c)),
+                _ => {
+                    return Err(LexerError {
+                        at,
+                        message: format!("unknown char: {c:?}").to_string(),
+                    });
+                }
             };
             self.toks.push(Token { kind, at });
         }

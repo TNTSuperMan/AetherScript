@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub enum LexerError {
-    UnknownChar(char),
-    Syntax(String, usize),
+pub struct LexerError {
+    pub at: usize,
+    pub message: String,
 }
