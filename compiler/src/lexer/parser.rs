@@ -58,7 +58,7 @@ impl<'a> LexerParser<'a> {
             toks: vec![],
         }
     }
-    fn step(&mut self) {
+    pub fn parse(&mut self) {
         while let Some((at, c)) = self.iter.next() {
             let kind = match c {
                 c if c.is_whitespace() => continue,
@@ -91,5 +91,8 @@ impl<'a> LexerParser<'a> {
             };
             self.toks.push(Token { kind, at });
         }
+    }
+    pub fn take_toks(self) -> Vec<Token> {
+        self.toks
     }
 }
