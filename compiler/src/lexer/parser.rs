@@ -63,8 +63,11 @@ impl<'a> LexerParser<'a> {
             let kind = match c {
                 c if c.is_whitespace() => continue,
                 c if is_identifier_char::<true>(c) => {
-                    let identifier: String =
-                        CharsWhile::new(&mut self.iter, is_identifier_char::<false>).collect();
+                    let identifier = {
+                        let mut str = String::from(c);
+                        str.push_str(CharsWhile::new(&mut self.iter, is_identifier_char::<false>).collect::<String>().as_str());
+                        str
+                    };
                     match identifier.as_str() {
                         "let" => TokenKind::WordSymbol(WordSymbol::Let),
                         "mut" => TokenKind::WordSymbol(WordSymbol::Mut),
