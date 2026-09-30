@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::lexer::{
-    Token, TokenKind, WordSymbol, interner::LiteralInterner, iter_while::IterWhile,
+    Symbol, Token, TokenKind, WordSymbol, chars_while::CharsWhile, interner::LiteralInterner,
 };
 
 fn is_identifier_char<const IS_FIRST: bool>(c: char) -> bool {
@@ -27,14 +27,12 @@ impl<'a> LexerParser<'a> {
     }
     fn step(&mut self) {
         while let Some((at, c)) = self.iter.next() {
-            match c {
-                c if c.is_whitespace() => {}
+            let kind = match c {
+                c if c.is_whitespace() => continue,
                 c if is_identifier_char::<true>(c) => {
                     let identifier: String =
-                        IterWhile::new(&mut self.iter, |(_, c)| is_identifier_char::<false>(*c))
-                            .map(|(_, c)| c)
-                            .collect();
-                    let kind = match identifier.as_str() {
+                        CharsWhile::new(&mut self.iter, is_identifier_char::<false>).collect();
+                    match identifier.as_str() {
                         "let" => TokenKind::WordSymbol(WordSymbol::Let),
                         "mut" => TokenKind::WordSymbol(WordSymbol::Mut),
                         "await" => TokenKind::WordSymbol(WordSymbol::Await),
@@ -51,11 +49,12 @@ impl<'a> LexerParser<'a> {
                         "unique" => TokenKind::WordSymbol(WordSymbol::Unique),
 
                         _ => TokenKind::Identifier(identifier),
-                    };
-                    self.toks.push(Token { kind, at });
+                    }
                 }
+                ';' => TokenKind::Symbol(Symbol::Semi),
                 _ => todo!(),
-            }
+            };
+            self.toks.push(Token { kind, at });
         }
     }
 }

@@ -1,5 +1,5 @@
+mod chars_while;
 mod interner;
-mod iter_while;
 mod parser;
 
 pub struct Token {
