@@ -11,6 +11,39 @@ fn is_identifier_char<const IS_FIRST: bool>(c: char) -> bool {
     (!IS_FIRST && c.is_ascii_digit()) || c.is_ascii_alphabetic() || c == '_'
 }
 
+fn try_into_symbol(c: char) -> Option<Symbol> {
+    Some(match c {
+        ';' => Symbol::Semi,
+        ',' => Symbol::Comma,
+        '.' => Symbol::Dot,
+        '(' => Symbol::OpenParen,
+        ')' => Symbol::CloseParen,
+        '{' => Symbol::OpenBrace,
+        '}' => Symbol::CloseBrace,
+        '[' => Symbol::OpenBracket,
+        ']' => Symbol::CloseBracket,
+        '@' => Symbol::At,
+        '#' => Symbol::Pound,
+        '~' => Symbol::Tilde,
+        '?' => Symbol::Question,
+        ':' => Symbol::Colon,
+        '$' => Symbol::Dollar,
+        '=' => Symbol::Eq,
+        '!' => Symbol::Bang,
+        '<' => Symbol::Lt,
+        '>' => Symbol::Gt,
+        '+' => Symbol::Plus,
+        '-' => Symbol::Minus,
+        '*' => Symbol::Star,
+        '/' => Symbol::Slash,
+        '%' => Symbol::Percent,
+        '|' => Symbol::Or,
+        '&' => Symbol::And,
+        '^' => Symbol::Caret,
+        _ => return None,
+    })
+}
+
 pub struct LexerParser<'a> {
     iter: Peekable<Enumerate<Chars<'a>>>,
     literals: LiteralInterner,
@@ -51,8 +84,10 @@ impl<'a> LexerParser<'a> {
                         _ => TokenKind::Identifier(identifier),
                     }
                 }
-                ';' => TokenKind::Symbol(Symbol::Semi),
-                _ => todo!(),
+                c => match try_into_symbol(c) {
+                    Some(symbol) => TokenKind::Symbol(symbol),
+                    None => todo!(),
+                },
             };
             self.toks.push(Token { kind, at });
         }
