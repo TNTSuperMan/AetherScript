@@ -88,7 +88,7 @@ impl<'a> LexerParser<'a> {
                         "bool" => TokenKind::WordSymbol(WordSymbol::Bool),
                         "unique" => TokenKind::WordSymbol(WordSymbol::Unique),
 
-                        _ => TokenKind::Identifier(identifier),
+                        _ => TokenKind::Identifier(self.literals.get_or_insert(identifier)),
                     }
                 }
                 c => match try_into_symbol(c) {
@@ -99,7 +99,7 @@ impl<'a> LexerParser<'a> {
             self.toks.push(Token { kind, at });
         }
     }
-    pub fn take_toks(self) -> Vec<Token> {
-        self.toks
+    pub fn take_results(self) -> (Vec<Token>, LiteralInterner) {
+        (self.toks, self.literals)
     }
 }
