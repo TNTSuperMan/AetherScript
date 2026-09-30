@@ -4,7 +4,8 @@ use std::{
 };
 
 use crate::lexer::{
-    Symbol, Token, TokenKind, WordSymbol, chars_while::CharsWhile, interner::IdentifierInterner,
+    Symbol, Token, TokenKind, WordSymbol, chars_while::CharsWhile, error::LexerError,
+    interner::IdentifierInterner,
 };
 
 fn is_identifier_char<const IS_FIRST: bool>(c: char) -> bool {
@@ -78,7 +79,7 @@ impl<'a> LexerParser<'a> {
             toks: vec![],
         }
     }
-    pub fn parse(&mut self) {
+    pub fn parse(&mut self) -> Result<(), LexerError> {
         while let Some((at, c)) = self.iter.next() {
             let kind = match c {
                 c if c.is_whitespace() => continue,
@@ -102,12 +103,13 @@ impl<'a> LexerParser<'a> {
                     if let Some(sym) = try_into_symbol(c) {
                         TokenKind::Symbol(sym)
                     } else {
-                        panic!("[Lexer] unknown char: {c:?}");
+                        return Err(LexerError::UnknownChar(c));
                     }
                 }
             };
             self.toks.push(Token { kind, at });
         }
+        Ok(())
     }
     pub fn take_results(self) -> (Vec<Token>, IdentifierInterner) {
         (self.toks, self.ids)

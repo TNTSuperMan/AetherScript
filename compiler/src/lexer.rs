@@ -1,16 +1,18 @@
 use crate::lexer::{
+    error::LexerError,
     interner::{IdentifierId, IdentifierInterner},
     parser::LexerParser,
 };
 
 mod chars_while;
+mod error;
 mod interner;
 mod parser;
 
-pub fn parse_to_lexer(code: &str) -> (Vec<Token>, IdentifierInterner) {
+pub fn parse_to_lexer(code: &str) -> Result<(Vec<Token>, IdentifierInterner), LexerError> {
     let mut parser = LexerParser::new(code);
-    parser.parse();
-    parser.take_results()
+    parser.parse()?;
+    Ok(parser.take_results())
 }
 
 #[derive(Debug, Clone)]
