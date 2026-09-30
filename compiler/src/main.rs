@@ -8,7 +8,10 @@ mod lexer;
 fn main() {
     println!("parser playground; input code:");
 
-    for line in stdin().lines().map(|l| l.unwrap_or_else(|_| process::exit(0))) {
+    for line in stdin()
+        .lines()
+        .map(|l| l.unwrap_or_else(|_| process::exit(0)))
+    {
         let lex = parse_to_lexer(line.as_str());
         println!("{lex:?}");
     }

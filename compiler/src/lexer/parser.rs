@@ -65,7 +65,11 @@ impl<'a> LexerParser<'a> {
                 c if is_identifier_char::<true>(c) => {
                     let identifier = {
                         let mut str = String::from(c);
-                        str.push_str(CharsWhile::new(&mut self.iter, is_identifier_char::<false>).collect::<String>().as_str());
+                        str.push_str(
+                            CharsWhile::new(&mut self.iter, is_identifier_char::<false>)
+                                .collect::<String>()
+                                .as_str(),
+                        );
                         str
                     };
                     match identifier.as_str() {
