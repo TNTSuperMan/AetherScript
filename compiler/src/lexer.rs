@@ -6,14 +6,17 @@ use crate::lexer::{
 
 mod chars_while;
 mod error;
-mod interner;
+pub mod interner;
 mod num;
 mod parser;
 
-pub fn parse_to_lexer(code: &str) -> Result<(Vec<Token>, IdentifierInterner), LexerError> {
-    let mut parser = LexerParser::new(code);
+pub fn parse_to_lexer(
+    code: &str,
+    interner: &mut IdentifierInterner,
+) -> Result<Vec<Token>, LexerError> {
+    let mut parser = LexerParser::new(code, interner);
     parser.parse()?;
-    Ok(parser.take_results())
+    Ok(parser.take_toks())
 }
 
 #[derive(Debug, Clone)]

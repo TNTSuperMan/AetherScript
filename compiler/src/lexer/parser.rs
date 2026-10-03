@@ -70,15 +70,15 @@ fn try_into_symbol(c: char) -> Option<Symbol> {
 
 pub struct LexerParser<'a> {
     iter: Peekable<Enumerate<Chars<'a>>>,
-    ids: IdentifierInterner,
+    ids: &'a mut IdentifierInterner,
     toks: Vec<Token>,
 }
 
 impl<'a> LexerParser<'a> {
-    pub fn new(code: &'a str) -> Self {
+    pub fn new(code: &'a str, interner: &'a mut IdentifierInterner) -> Self {
         LexerParser {
             iter: code.chars().enumerate().peekable(),
-            ids: IdentifierInterner::new(),
+            ids: interner,
             toks: vec![],
         }
     }
@@ -124,7 +124,7 @@ impl<'a> LexerParser<'a> {
         }
         Ok(())
     }
-    pub fn take_results(self) -> (Vec<Token>, IdentifierInterner) {
-        (self.toks, self.ids)
+    pub fn take_toks(self) -> Vec<Token> {
+        self.toks
     }
 }
