@@ -8,7 +8,7 @@ use crate::lexer::{
     chars_while::CharsWhile,
     error::LexerError,
     interner::IdentifierInterner,
-    num::{TryToNumstrResult, try_iter_to_numstr},
+    num::{TryToNumstrResult, try_iter_to_num},
 };
 
 fn is_identifier_char<const IS_FIRST: bool>(c: char) -> bool {
@@ -102,10 +102,11 @@ impl<'a> LexerParser<'a> {
                         TokenKind::Identifier(self.ids.get_or_insert(identifier))
                     }
                 }
-                c if c.is_ascii_digit() || c == '-' => {
-                    match try_iter_to_numstr(c, &mut self.iter) {
-                        TryToNumstrResult::Ok(numstr) => todo!(),
+                c if c.is_ascii_digit() || c == '-' || c == '+' => {
+                    match try_iter_to_num(c, &mut self.iter) {
+                        TryToNumstrResult::Int(i) => TokenKind::Literal(Literal::Int(i)),
                         TryToNumstrResult::MinusSymbol => TokenKind::Symbol(Symbol::Minus),
+                        TryToNumstrResult::PlusSymbol => TokenKind::Symbol(Symbol::Plus),
                         TryToNumstrResult::IncorrectSyntax(msg, at) => {
                             return Err(LexerError { at, message: msg });
                         }
