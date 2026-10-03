@@ -77,7 +77,7 @@ pub fn try_iter_to_num(
     if is_negative {
         int.push('-');
     }
-    if radix == 10 && first_n != '0' {
+    if radix == 10 {
         int.push(first_n);
     }
     int.push_str(&get_ints(iter, radix));
