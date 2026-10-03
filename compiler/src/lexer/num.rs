@@ -7,7 +7,7 @@ use crate::lexer::chars_while::CharsWhile;
 
 #[derive(Debug, PartialEq)]
 pub enum TryToNumstrResult {
-    Int(i64),
+    Smi(i32),
     Bigint(String),
     PlusSymbol,
     MinusSymbol,
@@ -18,8 +18,8 @@ fn get_ints(iter: &mut Peekable<Enumerate<Chars<'_>>>, radix: u32) -> String {
     CharsWhile::new(iter, |c| c.is_digit(radix)).collect::<String>()
 }
 
-fn calc_exp_num(num: i64, exp: u32) -> Option<i64> {
-    10i64.checked_pow(exp)?.checked_mul(num)
+fn calc_exp_num(num: i32, exp: u32) -> Option<i32> {
+    10i32.checked_pow(exp)?.checked_mul(num)
 }
 
 pub fn try_iter_to_num(
@@ -68,7 +68,7 @@ pub fn try_iter_to_num(
                 );
                 10
             }
-            _ => return TryToNumstrResult::Int(0),
+            _ => return TryToNumstrResult::Smi(0),
         }
     } else {
         10
@@ -113,20 +113,20 @@ pub fn try_iter_to_num(
             let Ok(exp_num) = exp.parse::<u32>() else {
                 return TryToNumstrResult::IncorrectSyntax("exp num too big".to_string(), i);
             };
-            let Ok(n) = int.parse::<i64>() else {
+            let Ok(n) = int.parse::<i32>() else {
                 return TryToNumstrResult::IncorrectSyntax("num too big".to_string(), i);
             };
             match calc_exp_num(n, exp_num) {
-                Some(n) => TryToNumstrResult::Int(n),
+                Some(n) => TryToNumstrResult::Smi(n),
                 None => TryToNumstrResult::IncorrectSyntax("number too big".to_string(), i),
             }
         }
-        Some((i, _)) => match i64::from_str_radix(&int, radix) {
-            Ok(n) => TryToNumstrResult::Int(n),
+        Some((i, _)) => match i32::from_str_radix(&int, radix) {
+            Ok(n) => TryToNumstrResult::Smi(n),
             Err(e) => TryToNumstrResult::IncorrectSyntax(e.to_string(), i),
         },
-        None => match i64::from_str_radix(&int, radix) {
-            Ok(n) => TryToNumstrResult::Int(n),
+        None => match i32::from_str_radix(&int, radix) {
+            Ok(n) => TryToNumstrResult::Smi(n),
             Err(e) => TryToNumstrResult::IncorrectSyntax(e.to_string(), usize::MAX),
         },
     }
@@ -156,17 +156,17 @@ mod tests {
 
     #[test]
     fn plain_test() {
-        let cases: &[(&'static str, i64)] = &[
+        let cases: &[(&'static str, i32)] = &[
             ("1048", 1048),
             ("-3015", -3015),
-            ("1004e7", 10040000000),
+            ("1004e4", 10040000),
             ("-0x14", -0x14),
             ("0b1011", 0b1011),
             ("0o107", 0o107),
             ("0101", 0101),
         ];
         for (s, n) in cases {
-            assert_eq!(try_parse(s), TryToNumstrResult::Int(*n));
+            assert_eq!(try_parse(s), TryToNumstrResult::Smi(*n));
         }
     }
 
@@ -183,19 +183,19 @@ mod tests {
             }
             str.push_str("42");
             if exp {
-                str.push_str("e13");
+                str.push_str("e4");
             }
             if spc {
                 str.push(' ');
             }
-            let mut expect_val: i64 = 42;
+            let mut expect_val: i32 = 42;
             if neg {
                 expect_val = -expect_val;
             }
             if exp {
-                expect_val = expect_val * 10000000000000;
+                expect_val = expect_val * 10000;
             }
-            assert_eq!(try_parse(&str), TryToNumstrResult::Int(expect_val));
+            assert_eq!(try_parse(&str), TryToNumstrResult::Smi(expect_val));
         }
     }
     // TODO: hex/oct/binの網羅テスト

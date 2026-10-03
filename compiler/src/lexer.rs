@@ -38,9 +38,9 @@ pub enum TokenKind {
 #[derive(Debug, Clone)]
 pub enum Literal {
     String(String),
-    BigInt(String),
-    Int(i64),
+    Smi(i32),
     Float(f64),
+    BigInt(String),
 }
 
 #[derive(Debug, Clone)]
