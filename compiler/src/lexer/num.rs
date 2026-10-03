@@ -53,11 +53,20 @@ pub fn try_iter_to_num(
                 iter.next();
                 16
             }
+            'o' => {
+                iter.next();
+                8
+            }
             'b' => {
                 iter.next();
                 2
             }
-            _ if c.is_ascii_digit() => 8,
+            _ if c.is_ascii_digit() => {
+                eprintln!(
+                    "warn: javascript-like octet syntax(e.g. `0547`) is not supported, parses as decimal"
+                );
+                10
+            }
             _ => return TryToNumstrResult::Int(0),
         }
     } else {
@@ -149,7 +158,8 @@ mod tests {
             ("1004e7", 10040000000),
             ("-0x14", -0x14),
             ("0b1011", 0b1011),
-            ("0107", 0o107),
+            ("0o107", 0o107),
+            ("0101", 0101),
         ];
         for (s, n) in cases {
             assert_eq!(try_parse(s), TryToNumstrResult::Int(*n));
