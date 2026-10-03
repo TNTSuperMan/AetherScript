@@ -90,7 +90,9 @@ pub fn try_iter_to_num(
     }
 
     match iter.peek().copied() {
-        Some((_, '.')) => todo!("float parser"),
+        Some((i, '.')) => {
+            return TryToNumstrResult::IncorrectSyntax("float syntax not supported".to_string(), i);
+        }
         Some((i, 'e' | 'E')) => {
             iter.next();
             if radix != 10 {

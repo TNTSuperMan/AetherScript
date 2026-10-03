@@ -12,7 +12,9 @@ fn main() {
         .lines()
         .map(|l| l.unwrap_or_else(|_| process::exit(0)))
     {
-        let (lex, _ids) = parse_to_lexer(line.as_str()).unwrap();
-        println!("{lex:?}");
+        match parse_to_lexer(line.as_str()) {
+            Ok((lex, _)) => println!("ok:  {lex:?}"),
+            Err(e) => eprintln!("err: {e:?}"),
+        }
     }
 }
