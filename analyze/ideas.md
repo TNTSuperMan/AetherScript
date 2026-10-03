@@ -47,8 +47,8 @@ after  `var c=e=>[e??0],i=e=>{e[0]++},f=c(null);i(f);print(f[0]);`
 ### プリミティブ
 値の同一性を持っての可変操作が不可能なもの
 - bigint
+- float
 - smi
-- number
 - string
 - bool
 - symbol
@@ -126,4 +126,3 @@ fn zerofill_nums(nums: mut [smi]) { // mutable
     }
 }
 ```
-

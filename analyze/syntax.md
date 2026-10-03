@@ -64,8 +64,9 @@ impl<T: Clone> Clone for Option<T> {
 
 ### Primitive
 Can't create direct mutable reference, requires Box
-- num
 - smi
+- float
+- bigint
 - str
 - bool
 - func

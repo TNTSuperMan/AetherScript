@@ -27,8 +27,9 @@ fn try_into_word_symbol(s: &str) -> Option<WordSymbol> {
         "struct" => WordSymbol::Struct,
         "enum" => WordSymbol::Enum,
 
-        "num" => WordSymbol::Num,
         "smi" => WordSymbol::Smi,
+        "float" => WordSymbol::Float,
+        "bigint" => WordSymbol::Bigint,
         "str" => WordSymbol::Str,
         "bool" => WordSymbol::Bool,
         "unique" => WordSymbol::Unique,

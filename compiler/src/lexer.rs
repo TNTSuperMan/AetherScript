@@ -55,8 +55,9 @@ pub enum WordSymbol {
     Enum,
     Impl,
 
-    Num,
     Smi,
+    Float,
+    Bigint,
     Str,
     Bool,
     Unique,

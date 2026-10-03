@@ -4,8 +4,9 @@ pub enum Type {
 }
 
 pub enum PrimitiveType {
-    Num,
     Smi,
+    Float,
+    Bigint,
     Str,
     Bool,
     Unique,
