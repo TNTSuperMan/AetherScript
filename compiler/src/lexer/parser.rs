@@ -115,6 +115,7 @@ impl<'a> LexerParser<'a> {
                 c if c.is_ascii_digit() || c == '-' || c == '+' => {
                     match try_iter_to_num(c, &mut self.iter) {
                         TryToNumstrResult::Int(i) => TokenKind::Literal(Literal::Int(i)),
+                        TryToNumstrResult::Bigint(s) => TokenKind::Literal(Literal::BigInt(s)),
                         TryToNumstrResult::MinusSymbol => TokenKind::Symbol(Symbol::Minus),
                         TryToNumstrResult::PlusSymbol => TokenKind::Symbol(Symbol::Plus),
                         TryToNumstrResult::IncorrectSyntax(msg, at) => {

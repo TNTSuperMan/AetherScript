@@ -8,6 +8,7 @@ use crate::lexer::chars_while::CharsWhile;
 #[derive(Debug, PartialEq)]
 pub enum TryToNumstrResult {
     Int(i64),
+    Bigint(String),
     PlusSymbol,
     MinusSymbol,
     IncorrectSyntax(String, usize),
@@ -93,6 +94,7 @@ pub fn try_iter_to_num(
         Some((i, '.')) => {
             return TryToNumstrResult::IncorrectSyntax("float syntax not supported".to_string(), i);
         }
+        Some((_, 'n')) => TryToNumstrResult::Bigint(int),
         Some((i, 'e' | 'E')) => {
             iter.next();
             if radix != 10 {
