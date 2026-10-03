@@ -5,6 +5,7 @@ use std::{
 
 use crate::lexer::chars_while::CharsWhile;
 
+#[derive(Debug, PartialEq)]
 pub enum TryToNumstrResult {
     Int(i64),
     PlusSymbol,
@@ -82,6 +83,7 @@ pub fn try_iter_to_num(
     match iter.peek().copied() {
         Some((_, '.')) => todo!("float parser"),
         Some((i, 'e' | 'E')) => {
+            iter.next();
             if radix != 10 {
                 return TryToNumstrResult::IncorrectSyntax(
                     "radix syntax cant use with exp".to_string(),
@@ -127,4 +129,60 @@ pub fn try_iter_to_num(
     } else {
         None
     };*/
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn try_parse(source: &str) -> TryToNumstrResult {
+        let mut iter = source.chars().enumerate().peekable();
+        let (_, first_char) = iter.next().expect("testcase err: need first char ;)");
+        try_iter_to_num(first_char, &mut iter)
+    }
+
+    #[test]
+    fn plain_test() {
+        let cases: &[(&'static str, i64)] = &[
+            ("1048", 1048),
+            ("-3015", -3015),
+            ("1004e7", 10040000000),
+            ("-0x14", -0x14),
+            ("0b1011", 0b1011),
+            ("0107", 0o107),
+        ];
+        for (s, n) in cases {
+            assert_eq!(try_parse(s), TryToNumstrResult::Int(*n));
+        }
+    }
+
+    #[test]
+    fn decimal_and_exp() {
+        for i in 0u8..8 {
+            let neg = i & 0b00000001 != 0;
+            let exp = i & 0b00000010 != 0;
+            let spc = i & 0b00000100 != 0;
+
+            let mut str = String::new();
+            if neg {
+                str.push('-');
+            }
+            str.push_str("42");
+            if exp {
+                str.push_str("e13");
+            }
+            if spc {
+                str.push(' ');
+            }
+            let mut expect_val: i64 = 42;
+            if neg {
+                expect_val = -expect_val;
+            }
+            if exp {
+                expect_val = expect_val * 10000000000000;
+            }
+            assert_eq!(try_parse(&str), TryToNumstrResult::Int(expect_val));
+        }
+    }
+    // TODO: hex/oct/binの網羅テスト
 }
