@@ -91,7 +91,7 @@ impl<'a> LexerParser<'a> {
                     None => {
                         return Err(LexerError {
                             at,
-                            message: "eof reached during string".to_string(),
+                            message: "string literal has problem".to_string(),
                         });
                     }
                 },

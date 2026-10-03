@@ -3,6 +3,7 @@ use std::{
     str::Chars,
 };
 
+// TODO: Resultを返す
 pub fn parse_string(iter: &mut Peekable<Enumerate<Chars<'_>>>) -> Option<String> {
     let mut str = String::new();
 
