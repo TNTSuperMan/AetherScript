@@ -9,6 +9,7 @@ mod error;
 pub mod interner;
 mod num;
 mod parser;
+mod str;
 
 pub fn parse_to_lexer(
     code: &str,

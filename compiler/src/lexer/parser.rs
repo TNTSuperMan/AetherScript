@@ -9,6 +9,7 @@ use crate::lexer::{
     error::LexerError,
     interner::IdentifierInterner,
     num::{TryToNumstrResult, try_iter_to_num},
+    str::parse_string,
 };
 
 fn is_identifier_char<const IS_FIRST: bool>(c: char) -> bool {
@@ -85,6 +86,15 @@ impl<'a> LexerParser<'a> {
     pub fn parse(&mut self) -> Result<(), LexerError> {
         while let Some((at, c)) = self.iter.next() {
             let kind = match c {
+                '"' => match parse_string(&mut self.iter) {
+                    Some(s) => TokenKind::Literal(Literal::String(s)),
+                    None => {
+                        return Err(LexerError {
+                            at,
+                            message: "eof reached during string".to_string(),
+                        });
+                    }
+                },
                 c if c.is_whitespace() => continue,
                 c if is_identifier_char::<true>(c) => {
                     let identifier = {
