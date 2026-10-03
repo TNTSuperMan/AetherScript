@@ -63,11 +63,13 @@ pub fn try_iter_to_num(
         10
     };
 
-    let mut int = if radix == 10 {
-        String::from(first_n)
-    } else {
-        String::new()
-    };
+    let mut int = String::new();
+    if is_negative {
+        int.push('-');
+    }
+    if radix == 10 && first_n != '0' {
+        int.push(first_n);
+    }
     int.push_str(&get_ints(iter, radix));
 
     if int.is_empty() {
