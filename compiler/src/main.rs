@@ -16,7 +16,7 @@ fn main() {
     {
         match parse_to_lexer(line.as_str(), &mut interner) {
             Ok(lex) => println!("ok:  {lex:?}"),
-            Err(e) => eprintln!("err: {e:?}"),
+            Err(e) => eprintln!("{}", e.to_error_msg(&line, "{playground}")),
         }
     }
 }
