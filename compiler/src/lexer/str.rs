@@ -28,7 +28,7 @@ pub fn parse_string(iter: &mut Peekable<Enumerate<Chars<'_>>>) -> Result<String,
                     'r' => '\r',
                     '"' => '"',
                     '\\' => '\\',
-                    _ => {
+                    c => {
                         return Err(LexerError {
                             at,
                             message: format!("unknown string escape sequence: {c}"),
