@@ -3,6 +3,7 @@ use std::{io::stdin, process};
 use crate::lexer::{interner::IdentifierInterner, parse_to_lexer};
 
 mod ast;
+mod core;
 mod lexer;
 
 fn main() {
