@@ -17,10 +17,6 @@ fn get_ints(iter: &mut Peekable<Enumerate<Chars<'_>>>, radix: u32) -> String {
     CharsWhile::new(iter, |c| c.is_digit(radix)).collect::<String>()
 }
 
-fn calc_exp_num(num: i32, exp: u32) -> Option<i32> {
-    10i32.checked_pow(exp)?.checked_mul(num)
-}
-
 pub fn try_iter_to_num(
     first: char,
     iter: &mut Peekable<Enumerate<Chars<'_>>>,
