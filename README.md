@@ -1,4 +1,8 @@
 # aetherscript
+aetherscriptは仮名です  
+AltJSつくります  
+てきとうです  
+詳細は[analyze/syntax.md](analyze/syntax.md)とかみてください
 
 To install dependencies:
 
