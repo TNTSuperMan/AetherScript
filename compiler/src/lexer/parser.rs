@@ -25,6 +25,7 @@ fn try_into_word_symbol(s: &str) -> Option<WordSymbol> {
         "return" => WordSymbol::Return,
         "struct" => WordSymbol::Struct,
         "enum" => WordSymbol::Enum,
+        "impl" => WordSymbol::Impl,
 
         "smi" => WordSymbol::Smi,
         "float" => WordSymbol::Float,
