@@ -117,7 +117,7 @@ impl<'a> LexerParser<'a> {
                 _ => {
                     return Err(LexerError {
                         at,
-                        message: format!("unknown char: {c:?}").to_string(),
+                        message: format!("unknown char {c:?}").to_string(),
                     });
                 }
             };
