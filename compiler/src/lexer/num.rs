@@ -96,41 +96,6 @@ pub fn try_iter_to_num(
             });
         }
         Some((_, 'n')) => Ok(NumlikeTok::Bigint(int)),
-        Some((i, 'e' | 'E')) => {
-            iter.next();
-            if radix != 10 {
-                return Err(LexerError {
-                    at: i,
-                    message: "radix syntax cant use with exp".to_string(),
-                });
-            }
-            let exp = get_ints(iter, 10);
-            if exp.is_empty() {
-                return Err(LexerError {
-                    at: i,
-                    message: "exp syntax must have num part like: 0x1".to_string(),
-                });
-            }
-            let Ok(exp_num) = exp.parse::<u32>() else {
-                return Err(LexerError {
-                    at: i,
-                    message: "exp num too big".to_string(),
-                });
-            };
-            let Ok(n) = int.parse::<i32>() else {
-                return Err(LexerError {
-                    at: i,
-                    message: "num too big".to_string(),
-                });
-            };
-            match calc_exp_num(n, exp_num) {
-                Some(n) => Ok(NumlikeTok::Smi(n)),
-                None => Err(LexerError {
-                    at: i,
-                    message: "number too big".to_string(),
-                }),
-            }
-        }
         Some((i, _)) => match i32::from_str_radix(&int, radix) {
             Ok(n) => Ok(NumlikeTok::Smi(n)),
             Err(e) => Err(LexerError {
@@ -175,7 +140,6 @@ mod tests {
         let cases: &[(&'static str, i32)] = &[
             ("1048", 1048),
             ("-3015", -3015),
-            ("1004e4", 10040000),
             ("-0x14", -0x14),
             ("0b1011", 0b1011),
             ("0o107", 0o107),
@@ -187,29 +151,22 @@ mod tests {
     }
 
     #[test]
-    fn decimal_and_exp() {
-        for i in 0u8..8 {
+    fn decimal() {
+        for i in 0u8..4 {
             let neg = i & 0b00000001 != 0;
-            let exp = i & 0b00000010 != 0;
-            let spc = i & 0b00000100 != 0;
+            let spc = i & 0b00000010 != 0;
 
             let mut str = String::new();
             if neg {
                 str.push('-');
             }
             str.push_str("42");
-            if exp {
-                str.push_str("e4");
-            }
             if spc {
                 str.push(' ');
             }
             let mut expect_val: i32 = 42;
             if neg {
                 expect_val = -expect_val;
-            }
-            if exp {
-                expect_val = expect_val * 10000;
             }
             assert_eq!(try_parse(&str), Ok(NumlikeTok::Smi(expect_val)));
         }
