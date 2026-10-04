@@ -8,7 +8,7 @@ use crate::lexer::{
     chars_while::CharsWhile,
     error::LexerError,
     interner::IdentifierInterner,
-    num::{TryToNumstrResult, try_iter_to_num},
+    num::{NumlikeTok, try_iter_to_num},
     str::parse_string,
 };
 
@@ -87,15 +87,6 @@ impl<'a> LexerParser<'a> {
     pub fn parse(&mut self) -> Result<(), LexerError> {
         while let Some((at, c)) = self.iter.next() {
             let kind = match c {
-                '"' => match parse_string(&mut self.iter) {
-                    Some(s) => TokenKind::Literal(Literal::String(s)),
-                    None => {
-                        return Err(LexerError {
-                            at,
-                            message: "string literal has problem".to_string(),
-                        });
-                    }
-                },
                 c if c.is_whitespace() => continue,
                 c if is_identifier_char::<true>(c) => {
                     let identifier = {
@@ -113,15 +104,13 @@ impl<'a> LexerParser<'a> {
                         TokenKind::Identifier(self.ids.get_or_insert(identifier))
                     }
                 }
+                '"' => TokenKind::Literal(Literal::String(parse_string(&mut self.iter)?)),
                 c if c.is_ascii_digit() || c == '-' || c == '+' => {
-                    match try_iter_to_num(c, &mut self.iter) {
-                        TryToNumstrResult::Smi(i) => TokenKind::Literal(Literal::Smi(i)),
-                        TryToNumstrResult::Bigint(s) => TokenKind::Literal(Literal::BigInt(s)),
-                        TryToNumstrResult::MinusSymbol => TokenKind::Symbol(Symbol::Minus),
-                        TryToNumstrResult::PlusSymbol => TokenKind::Symbol(Symbol::Plus),
-                        TryToNumstrResult::IncorrectSyntax(msg, at) => {
-                            return Err(LexerError { at, message: msg });
-                        }
+                    match try_iter_to_num(c, &mut self.iter)? {
+                        NumlikeTok::Smi(i) => TokenKind::Literal(Literal::Smi(i)),
+                        NumlikeTok::Bigint(s) => TokenKind::Literal(Literal::BigInt(s)),
+                        NumlikeTok::MinusSymbol => TokenKind::Symbol(Symbol::Minus),
+                        NumlikeTok::PlusSymbol => TokenKind::Symbol(Symbol::Plus),
                     }
                 }
                 c if let Some(sym) = try_into_symbol(c) => TokenKind::Symbol(sym),

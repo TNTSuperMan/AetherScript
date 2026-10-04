@@ -3,15 +3,14 @@ use std::{
     str::Chars,
 };
 
-use crate::lexer::chars_while::CharsWhile;
+use crate::lexer::{chars_while::CharsWhile, error::LexerError};
 
 #[derive(Debug, PartialEq)]
-pub enum TryToNumstrResult {
+pub enum NumlikeTok {
     Smi(i32),
     Bigint(String),
     PlusSymbol,
     MinusSymbol,
-    IncorrectSyntax(String, usize),
 }
 
 fn get_ints(iter: &mut Peekable<Enumerate<Chars<'_>>>, radix: u32) -> String {
@@ -25,7 +24,7 @@ fn calc_exp_num(num: i32, exp: u32) -> Option<i32> {
 pub fn try_iter_to_num(
     first: char,
     iter: &mut Peekable<Enumerate<Chars<'_>>>,
-) -> TryToNumstrResult {
+) -> Result<NumlikeTok, LexerError> {
     let is_negative = first == '-';
 
     let first_n = if first == '-' || first == '+' {
@@ -35,11 +34,11 @@ pub fn try_iter_to_num(
                 c
             }
             _ => {
-                return if first == '-' {
-                    TryToNumstrResult::MinusSymbol
+                return Ok(if first == '-' {
+                    NumlikeTok::MinusSymbol
                 } else {
-                    TryToNumstrResult::PlusSymbol
-                };
+                    NumlikeTok::PlusSymbol
+                });
             }
         }
     } else {
@@ -68,7 +67,7 @@ pub fn try_iter_to_num(
                 );
                 10
             }
-            _ => return TryToNumstrResult::Smi(0),
+            _ => return Ok(NumlikeTok::Smi(0)),
         }
     } else {
         10
@@ -84,50 +83,68 @@ pub fn try_iter_to_num(
     int.push_str(&get_ints(iter, radix));
 
     if int.is_empty() {
-        return TryToNumstrResult::IncorrectSyntax(
-            "radix syntax must have num part like: 0x1".to_string(),
-            iter.peek().map(|(i, _)| *i).unwrap_or(usize::MAX),
-        );
+        return Err(LexerError {
+            at: iter.peek().map(|(i, _)| *i).unwrap_or(usize::MAX),
+            message: "radix syntax must have num part like: 0x1".to_string(),
+        });
     }
 
     match iter.peek().copied() {
-        Some((i, '.')) => {
-            return TryToNumstrResult::IncorrectSyntax("float syntax not supported".to_string(), i);
+        Some((at, '.')) => {
+            return Err(LexerError {
+                at,
+                message: "float syntax not supported".to_string(),
+            });
         }
-        Some((_, 'n')) => TryToNumstrResult::Bigint(int),
+        Some((_, 'n')) => Ok(NumlikeTok::Bigint(int)),
         Some((i, 'e' | 'E')) => {
             iter.next();
             if radix != 10 {
-                return TryToNumstrResult::IncorrectSyntax(
-                    "radix syntax cant use with exp".to_string(),
-                    i,
-                );
+                return Err(LexerError {
+                    at: i,
+                    message: "radix syntax cant use with exp".to_string(),
+                });
             }
             let exp = get_ints(iter, 10);
             if exp.is_empty() {
-                return TryToNumstrResult::IncorrectSyntax(
-                    "exp syntax must have num part like: 0x1".to_string(),
-                    i,
-                );
+                return Err(LexerError {
+                    at: i,
+                    message: "exp syntax must have num part like: 0x1".to_string(),
+                });
             }
             let Ok(exp_num) = exp.parse::<u32>() else {
-                return TryToNumstrResult::IncorrectSyntax("exp num too big".to_string(), i);
+                return Err(LexerError {
+                    at: i,
+                    message: "exp num too big".to_string(),
+                });
             };
             let Ok(n) = int.parse::<i32>() else {
-                return TryToNumstrResult::IncorrectSyntax("num too big".to_string(), i);
+                return Err(LexerError {
+                    at: i,
+                    message: "num too big".to_string(),
+                });
             };
             match calc_exp_num(n, exp_num) {
-                Some(n) => TryToNumstrResult::Smi(n),
-                None => TryToNumstrResult::IncorrectSyntax("number too big".to_string(), i),
+                Some(n) => Ok(NumlikeTok::Smi(n)),
+                None => Err(LexerError {
+                    at: i,
+                    message: "number too big".to_string(),
+                }),
             }
         }
         Some((i, _)) => match i32::from_str_radix(&int, radix) {
-            Ok(n) => TryToNumstrResult::Smi(n),
-            Err(e) => TryToNumstrResult::IncorrectSyntax(e.to_string(), i),
+            Ok(n) => Ok(NumlikeTok::Smi(n)),
+            Err(e) => Err(LexerError {
+                at: i,
+                message: e.to_string(),
+            }),
         },
         None => match i32::from_str_radix(&int, radix) {
-            Ok(n) => TryToNumstrResult::Smi(n),
-            Err(e) => TryToNumstrResult::IncorrectSyntax(e.to_string(), usize::MAX),
+            Ok(n) => Ok(NumlikeTok::Smi(n)),
+            Err(e) => Err(LexerError {
+                at: usize::MAX,
+                message: e.to_string(),
+            }),
         },
     }
     /*/
@@ -148,7 +165,7 @@ pub fn try_iter_to_num(
 mod tests {
     use super::*;
 
-    fn try_parse(source: &str) -> TryToNumstrResult {
+    fn try_parse(source: &str) -> Result<NumlikeTok, LexerError> {
         let mut iter = source.chars().enumerate().peekable();
         let (_, first_char) = iter.next().expect("testcase err: need first char ;)");
         try_iter_to_num(first_char, &mut iter)
@@ -166,7 +183,7 @@ mod tests {
             ("0101", 0101),
         ];
         for (s, n) in cases {
-            assert_eq!(try_parse(s), TryToNumstrResult::Smi(*n));
+            assert_eq!(try_parse(s), Ok(NumlikeTok::Smi(*n)));
         }
     }
 
@@ -195,7 +212,7 @@ mod tests {
             if exp {
                 expect_val = expect_val * 10000;
             }
-            assert_eq!(try_parse(&str), TryToNumstrResult::Smi(expect_val));
+            assert_eq!(try_parse(&str), Ok(NumlikeTok::Smi(expect_val)));
         }
     }
     // TODO: hex/oct/binの網羅テスト
