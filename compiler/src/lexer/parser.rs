@@ -114,6 +114,28 @@ impl<'a> LexerParser<'a> {
                         NumlikeTok::PlusSymbol => TokenKind::Symbol(Symbol::Plus),
                     }
                 }
+                '/' => match self.iter.peek().copied() {
+                    Some((_, '*')) => {
+                        // note: `/*/`でもヒットする
+                        while let Some((_, c)) = self.iter.next() {
+                            if c == '*' {
+                                if self.iter.next().map(|(_, c)| c) == Some('/') {
+                                    break;
+                                }
+                            }
+                        }
+                        continue;
+                    }
+                    Some((_, '/')) => {
+                        while let Some((_, c)) = self.iter.next() {
+                            if c == '\n' {
+                                break;
+                            }
+                        }
+                        continue;
+                    }
+                    _ => TokenKind::Symbol(Symbol::Slash),
+                },
                 c if let Some(sym) = try_into_symbol(c) => TokenKind::Symbol(sym),
                 _ => {
                     return Err(LexerError {
