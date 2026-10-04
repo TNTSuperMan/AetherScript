@@ -7,6 +7,7 @@ use std::{
 #[derive(Debug, PartialEq)]
 pub enum NumlikeTok {
     Smi(i32),
+    Float(f64),
     Bigint(String),
     PlusSymbol,
     MinusSymbol,
@@ -90,10 +91,42 @@ pub fn try_iter_to_num(
 
     match iter.peek().copied() {
         Some((at, '.')) => {
-            return Err(LexerError {
-                at,
-                message: "float syntax not supported".to_string(),
-            });
+            iter.next();
+            let float_s = get_ints(iter, 10);
+
+            if radix != 10 && float_s.chars().all(|c| c == '0') {
+                let Ok(sign_int) = i64::from_str_radix(&int, radix) else {
+                    return Err(LexerError {
+                        at,
+                        message: "too big float with radix, use decimal".to_string(),
+                    });
+                };
+                return Ok(NumlikeTok::Float(sign_int as f64));
+            }
+
+            let mut all_str = format!("{int}.{float_s}");
+
+            if matches!(iter.peek().copied(), Some((_, 'e' | 'E'))) {
+                iter.next();
+                all_str.push('e');
+                all_str.push(
+                    // 符号に関する簡略化のためeの後はイテレーターからそのまま取って流す。最終的な構文チェックはstr::parseが行うためOK
+                    iter.next()
+                        .ok_or_else(|| LexerError {
+                            at,
+                            message: "eof detected during float exp".to_string(),
+                        })?
+                        .1,
+                );
+                all_str.push_str(&get_ints(iter, 10));
+            }
+
+            Ok(NumlikeTok::Float(all_str.parse().map_err(|_| {
+                LexerError {
+                    at,
+                    message: "invalid float syntax".to_string(),
+                }
+            })?))
         }
         Some((_, 'n')) => Ok(NumlikeTok::Bigint(int)),
         Some((i, _)) => match i32::from_str_radix(&int, radix) {

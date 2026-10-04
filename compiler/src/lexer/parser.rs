@@ -108,6 +108,7 @@ impl<'a> LexerParser<'a> {
                 c if c.is_ascii_digit() || c == '-' || c == '+' => {
                     match try_iter_to_num(c, &mut self.iter)? {
                         NumlikeTok::Smi(i) => TokenKind::Literal(Literal::Smi(i)),
+                        NumlikeTok::Float(f) => TokenKind::Literal(Literal::Float(f)),
                         NumlikeTok::Bigint(s) => TokenKind::Literal(Literal::BigInt(s)),
                         NumlikeTok::MinusSymbol => TokenKind::Symbol(Symbol::Minus),
                         NumlikeTok::PlusSymbol => TokenKind::Symbol(Symbol::Plus),
