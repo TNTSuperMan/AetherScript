@@ -1,6 +1,5 @@
-use std::{io::stdin, process};
-
 use crate::lexer::{interner::IdentifierInterner, parse_to_lexer};
+use std::{io::stdin, process};
 
 mod ast;
 mod core;

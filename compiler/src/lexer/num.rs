@@ -1,9 +1,8 @@
+use crate::lexer::{chars_while::CharsWhile, error::LexerError};
 use std::{
     iter::{Enumerate, Peekable},
     str::Chars,
 };
-
-use crate::lexer::{chars_while::CharsWhile, error::LexerError};
 
 #[derive(Debug, PartialEq)]
 pub enum NumlikeTok {

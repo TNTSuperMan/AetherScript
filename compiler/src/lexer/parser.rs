@@ -1,8 +1,3 @@
-use std::{
-    iter::{Enumerate, Peekable},
-    str::Chars,
-};
-
 use crate::lexer::{
     Literal, Symbol, Token, TokenKind, WordSymbol,
     chars_while::CharsWhile,
@@ -10,6 +5,10 @@ use crate::lexer::{
     interner::IdentifierInterner,
     num::{NumlikeTok, try_iter_to_num},
     str::parse_string,
+};
+use std::{
+    iter::{Enumerate, Peekable},
+    str::Chars,
 };
 
 fn is_identifier_char<const IS_FIRST: bool>(c: char) -> bool {

@@ -1,9 +1,8 @@
-use std::fs;
-
 use crate::{
     ast,
     lexer::{interner::IdentifierInterner, parse_to_lexer},
 };
+use std::fs;
 
 pub fn load_file_to_ast(
     interner: &mut IdentifierInterner,
