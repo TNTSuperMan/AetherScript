@@ -1,10 +1,12 @@
-use crate::lexer::{
-    Literal, Symbol, Token, TokenKind, WordSymbol,
-    chars_while::CharsWhile,
-    error::LexerError,
+use crate::{
     interner::IdentifierInterner,
-    num::{NumlikeTok, try_iter_to_num},
-    str::parse_string,
+    lexer::{
+        Literal, Symbol, Token, TokenKind, WordSymbol,
+        chars_while::CharsWhile,
+        error::LexerError,
+        num::{NumlikeTok, try_iter_to_num},
+        str::parse_string,
+    },
 };
 use std::{
     iter::{Enumerate, Peekable},

@@ -1,12 +1,10 @@
-use crate::lexer::{
-    error::LexerError,
+use crate::{
     interner::{IdentifierId, IdentifierInterner},
-    parser::LexerParser,
+    lexer::{error::LexerError, parser::LexerParser},
 };
 
 mod chars_while;
 mod error;
-pub mod interner;
 mod num;
 mod parser;
 mod str;

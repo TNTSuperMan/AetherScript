@@ -1,6 +1,7 @@
 use crate::{
     ast::{self, parse_to_ast},
-    lexer::{interner::IdentifierInterner, parse_to_lexer},
+    interner::IdentifierInterner,
+    lexer::parse_to_lexer,
 };
 use std::fs;
 

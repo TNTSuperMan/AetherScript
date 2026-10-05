@@ -1,8 +1,9 @@
-use crate::lexer::{interner::IdentifierInterner, parse_to_lexer};
+use crate::{interner::IdentifierInterner, lexer::parse_to_lexer};
 use std::{io::stdin, process};
 
 mod ast;
 mod core;
+mod interner;
 mod lexer;
 
 fn main() {
