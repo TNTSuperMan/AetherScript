@@ -17,3 +17,8 @@ pub enum ImprimitiveType {
     Tuple(Vec<Type>),
     Identifier { name: String, generics: Vec<Type> },
 }
+
+pub struct GenericArg {
+    pub name: String,
+    pub base: Option<(String, Vec<Type>)>,
+}

@@ -1,5 +1,5 @@
 use crate::{
-    ast,
+    ast::{self, parse_to_ast},
     lexer::{interner::IdentifierInterner, parse_to_lexer},
 };
 use std::fs;
@@ -10,8 +10,7 @@ pub fn load_file_to_ast(
 ) -> Result<ast::Module, String> {
     let code = fs::read_to_string(path).map_err(|err| format!("failed to read `{path}`: {err}"))?;
     let lex = parse_to_lexer(&code, interner).map_err(|err| err.to_error_msg(&code, path))?;
-
-    Err("todo".to_string())
+    parse_to_ast(lex).map_err(|err| err.to_error_msg(&code, path))
 }
 
 pub fn start_compile(entrypoint: &str) -> Result<(), String> {

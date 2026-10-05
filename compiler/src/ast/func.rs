@@ -1,10 +1,11 @@
-use crate::ast::types::Type;
+use crate::ast::types::{GenericArg, Type};
 
 pub struct Func {
     pub attributes: Vec<FuncAttr>,
     pub is_async: bool,
     pub is_unsafe: bool,
     pub name: String,
+    pub generics: Vec<GenericArg>,
     pub self_arg: Option<bool>,
     pub args: Vec<FuncArg>,
     pub return_type: Type,
