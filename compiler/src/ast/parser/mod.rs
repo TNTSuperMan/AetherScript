@@ -18,16 +18,18 @@ macro_rules! next_tok {
             }),
         }
     };
-    ($iter: expr, $pat: pat => $expr: expr) => {
+    ($iter: expr, $($pat: pat => $expr: expr),+) => {
         next_tok!(
-            $iter,
-            $pat => $expr,
-            format!("{} token expected", stringify!($pat))
+            @ $iter,
+            format!("{} token expected", stringify!($($pat)or+)),
+            $($pat => $expr),+
         )
     };
-    ($iter: expr, $pat: pat => $expr: expr, $errmsg: expr) => {
+    (@ $iter: expr, $errmsg: expr, $($pat: pat => $expr: expr),+) => {
         next_tok!($iter).and_then(|(at, kind)| match kind {
-            $pat => Ok((at, $expr)),
+            $(
+                $pat => Ok((at, $expr)),
+            ),+
             _ => Err(AstError {
                 at,
                 message: $errmsg,
@@ -53,7 +55,7 @@ impl AstParser {
             let stmt = match tok.kind {
                 lexer::TokenKind::WordSymbol(w) => match w {
                     lexer::WordSymbol::Function => {
-                        ModuleStatement::Func(self.parse_fn_base(tok.at, vec![], false, false)?)
+                        ModuleStatement::Func(self.parse_fn_base(vec![], false, false)?)
                     }
                     lexer::WordSymbol::Struct => todo!(),
                     lexer::WordSymbol::Enum => todo!(),

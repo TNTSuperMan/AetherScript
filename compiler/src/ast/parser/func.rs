@@ -1,7 +1,7 @@
 use crate::{
     ast::{
         AstError,
-        func::{Func, FuncAttr},
+        func::{Func, FuncArg, FuncAttr},
         parser::AstParser,
         types::GenericArg,
     },
@@ -9,10 +9,15 @@ use crate::{
 };
 
 impl AstParser {
+    fn parse_funcarg(&mut self) -> Result<FuncArg, AstError> {
+        next_tok!(self.iter, lexer::TokenKind::Symbol(lexer::Symbol::Colon) => {})?;
+
+        todo!()
+    }
+
     // 名前部分からパース
     pub fn parse_fn_base(
         &mut self,
-        begin_at: usize,
         attributes: Vec<FuncAttr>,
         is_async: bool,
         is_unsafe: bool,
@@ -22,9 +27,9 @@ impl AstParser {
         let generics: Vec<GenericArg> = match next_tok!(self.iter)? {
             (_, lexer::TokenKind::Symbol(lexer::Symbol::OpenParen)) => vec![],
             (_, lexer::TokenKind::Symbol(lexer::Symbol::Lt)) => todo!("generics"),
-            (i, _) => {
+            (at, _) => {
                 return Err(AstError {
-                    at: i,
+                    at,
                     message: "unknown tok after funcname".to_string(),
                 });
             }
