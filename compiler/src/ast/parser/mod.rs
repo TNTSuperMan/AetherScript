@@ -7,6 +7,35 @@ use std::{iter::Peekable, vec::IntoIter};
 pub mod error;
 mod func;
 
+#[macro_export]
+macro_rules! next_tok {
+    ($iter: expr) => {
+        match $iter.next() {
+            Some(lexer::Token { at, kind }) => Ok((at, kind)),
+            None => Err(AstError {
+                at: usize::MAX,
+                message: "eof reached during syntax".to_string(),
+            }),
+        }
+    };
+    ($iter: expr, $pat: pat => $expr: expr) => {
+        next_tok!(
+            $iter,
+            $pat => $expr,
+            format!("{} token expected", stringify!($pat))
+        )
+    };
+    ($iter: expr, $pat: pat => $expr: expr, $errmsg: expr) => {
+        next_tok!($iter).and_then(|(at, kind)| match kind {
+            $pat => Ok((at, $expr)),
+            _ => Err(AstError {
+                at,
+                message: $errmsg,
+            }),
+        })
+    };
+}
+
 pub(crate) struct AstParser {
     iter: Peekable<IntoIter<lexer::Token>>,
     module: ast::Module,

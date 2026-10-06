@@ -5,7 +5,7 @@ use crate::{
         parser::AstParser,
         types::GenericArg,
     },
-    lexer,
+    lexer, next_tok,
 };
 
 impl AstParser {
@@ -17,31 +17,14 @@ impl AstParser {
         is_async: bool,
         is_unsafe: bool,
     ) -> Result<Func, AstError> {
-        let Some(lexer::Token {
-            at: id_at,
-            kind: lexer::TokenKind::Identifier(name),
-        }) = self.iter.next()
-        else {
-            return Err(AstError {
-                at: begin_at,
-                message: "func name nothing".to_string(),
-            });
-        };
+        let (id_at, name) = next_tok!(self.iter, lexer::TokenKind::Identifier(name) => name)?;
 
-        let lexer::Token {
-            at: nx_at,
-            kind: after_id_tok,
-        } = self.iter.next().ok_or_else(|| AstError {
-            at: id_at,
-            message: "eof detected during func".to_string(),
-        })?;
-
-        let generics: Vec<GenericArg> = match after_id_tok {
-            lexer::TokenKind::Symbol(lexer::Symbol::OpenParen) => vec![],
-            lexer::TokenKind::Symbol(lexer::Symbol::Lt) => todo!("generics"),
-            _ => {
+        let generics: Vec<GenericArg> = match next_tok!(self.iter)? {
+            (_, lexer::TokenKind::Symbol(lexer::Symbol::OpenParen)) => vec![],
+            (_, lexer::TokenKind::Symbol(lexer::Symbol::Lt)) => todo!("generics"),
+            (i, _) => {
                 return Err(AstError {
-                    at: nx_at,
+                    at: i,
                     message: "unknown tok after funcname".to_string(),
                 });
             }
