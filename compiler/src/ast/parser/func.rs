@@ -51,7 +51,7 @@ impl AstParser {
             attributes,
             is_async,
             is_unsafe,
-            name: todo!(),
+            name,
             generics,
             self_arg: todo!(),
             args: todo!(),
