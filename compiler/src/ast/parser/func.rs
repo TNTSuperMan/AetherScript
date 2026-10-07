@@ -6,7 +6,7 @@ use crate::{
         types::{GenericArg, PrimitiveType, Type},
     },
     interner::IdentifierId,
-    lexer::{Symbol, TokenKind, WordSymbol},
+    lexer::{Symbol, Token, TokenKind, WordSymbol},
     next_tok,
 };
 
@@ -71,6 +71,20 @@ impl AstParser {
             (i, _) => return AstError::unex(i),
         };
 
+        let mut body = vec![];
+        loop {
+            if let Some(Token {
+                kind: TokenKind::Symbol(Symbol::CloseBrace),
+                ..
+            }) = self.iter.peek()
+            {
+                self.iter.next();
+                break;
+            } else {
+                return AstError::todo("fn body");
+            }
+        }
+
         Ok(Func {
             attributes,
             is_async,
@@ -80,7 +94,7 @@ impl AstParser {
             self_arg: None,
             args,
             return_type,
-            body: vec![],
+            body,
         })
     }
 }
