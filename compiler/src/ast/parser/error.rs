@@ -24,4 +24,23 @@ impl AstError {
         let (ln, col) = charat_to_lncol(self.at, code);
         format!("AstError: {} at {fpath}:{ln}:{col}", self.message)
     }
+    pub fn unex<T>(at: usize) -> Result<T, AstError> {
+        Err(AstError {
+            at,
+            message: format!("unknown token"),
+        })
+    }
+    pub fn todo<T>(name: &str) -> Result<T, AstError> {
+        Err(AstError {
+            at: usize::MAX,
+            message: format!("{name} is todo"),
+        })
+    }
+}
+
+pub fn err<T>(at: usize, msg: &str) -> Result<T, AstError> {
+    Err(AstError {
+        at,
+        message: msg.to_string(),
+    })
 }

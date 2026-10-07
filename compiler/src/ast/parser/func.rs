@@ -6,26 +6,22 @@ use crate::{
         types::GenericArg,
     },
     interner::IdentifierId,
-    lexer, next_tok,
+    lexer::{Symbol, TokenKind, WordSymbol},
+    next_tok,
 };
 
 impl AstParser {
     fn parse_funcarg(&mut self) -> Result<FuncArg, AstError> {
-        let (fat, ftok) = next_tok!(self.iter)?;
-        let (name, mutable): (IdentifierId, bool) = match ftok {
-            lexer::TokenKind::Identifier(name) => (name, false),
-            lexer::TokenKind::WordSymbol(lexer::WordSymbol::Mut) => (
-                next_tok!(self.iter, lexer::TokenKind::Identifier(name) => name)?.1,
+        let (at, tok) = next_tok!(self.iter)?;
+        let (name, mutable): (IdentifierId, bool) = match tok {
+            TokenKind::Identifier(name) => (name, false),
+            TokenKind::WordSymbol(WordSymbol::Mut) => (
+                next_tok!(self.iter, TokenKind::Identifier(name) => name)?.1,
                 true,
             ),
-            _ => {
-                return Err(AstError {
-                    at: fat,
-                    message: "unknown tok during funcarg".to_string(),
-                });
-            }
+            _ => return AstError::unex(at),
         };
-        next_tok!(self.iter, lexer::TokenKind::Symbol(lexer::Symbol::Colon) => {})?;
+        next_tok!(self.iter, TokenKind::Symbol(Symbol::Colon) => {})?;
 
         Ok(FuncArg {
             mutable,
@@ -41,17 +37,12 @@ impl AstParser {
         is_async: bool,
         is_unsafe: bool,
     ) -> Result<Func, AstError> {
-        let (id_at, name) = next_tok!(self.iter, lexer::TokenKind::Identifier(name) => name)?;
+        let (_, name) = next_tok!(self.iter, TokenKind::Identifier(name) => name)?;
 
         let generics: Vec<GenericArg> = match next_tok!(self.iter)? {
-            (_, lexer::TokenKind::Symbol(lexer::Symbol::OpenParen)) => vec![],
-            (_, lexer::TokenKind::Symbol(lexer::Symbol::Lt)) => todo!("generics"),
-            (at, _) => {
-                return Err(AstError {
-                    at,
-                    message: "unknown tok after funcname".to_string(),
-                });
-            }
+            (_, TokenKind::Symbol(Symbol::OpenParen)) => vec![],
+            (_, TokenKind::Symbol(Symbol::Lt)) => return AstError::todo("generics"),
+            (at, _) => return AstError::unex(at),
         };
 
         let mut args = vec![];
@@ -59,23 +50,19 @@ impl AstParser {
         loop {
             let tok = self.iter.peek().ok_or_else(eof_err)?;
             match tok.kind {
-                lexer::TokenKind::Symbol(lexer::Symbol::CloseParen) => {
+                TokenKind::Symbol(Symbol::CloseParen) => {
                     self.iter.next();
                     break;
                 }
-                lexer::TokenKind::WordSymbol(lexer::WordSymbol::Mut)
-                | lexer::TokenKind::Identifier(_) => {
+                TokenKind::WordSymbol(WordSymbol::Mut) | TokenKind::Identifier(_) => {
                     args.push(self.parse_funcarg()?);
-                    todo!()
+                    return AstError::todo("args");
                 }
-                _ => {
-                    return Err(AstError {
-                        at: tok.at,
-                        message: "unknown tok during args".to_string(),
-                    });
-                }
+                _ => return AstError::unex(tok.at),
             }
         }
+        next_tok!(self.iter, TokenKind::Symbol(Symbol::Colon) => {})?;
+        let return_type = self.parse_type()?;
 
         Ok(Func {
             attributes,
@@ -85,8 +72,8 @@ impl AstParser {
             generics,
             self_arg: None,
             args,
-            return_type: todo!(),
-            body: todo!(),
+            return_type,
+            body: vec![],
         })
     }
 }

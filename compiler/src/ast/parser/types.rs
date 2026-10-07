@@ -1,17 +1,17 @@
 use crate::{
     ast::{
         AstError,
-        parser::AstParser,
+        parser::{AstParser, error::err},
         types::{PrimitiveType, Type},
     },
-    lexer::{self, TokenKind, WordSymbol},
+    lexer::{TokenKind, WordSymbol},
     next_tok,
 };
 
 impl AstParser {
     pub fn parse_type(&mut self) -> Result<Type, AstError> {
-        let (fat, ftok) = next_tok!(self.iter)?;
-        match ftok {
+        let (at, tok) = next_tok!(self.iter)?;
+        match tok {
             TokenKind::WordSymbol(w) => {
                 let pt = match w {
                     WordSymbol::Smi => PrimitiveType::Smi,
@@ -20,19 +20,11 @@ impl AstParser {
                     WordSymbol::Str => PrimitiveType::Str,
                     WordSymbol::Bool => PrimitiveType::Bool,
                     WordSymbol::Unique => PrimitiveType::Unique,
-                    _ => {
-                        return Err(AstError {
-                            at: fat,
-                            message: "unknown type".to_string(),
-                        });
-                    }
+                    _ => return err(at, "unknown type"),
                 };
                 Ok(Type::Primitive(pt))
             }
-            _ => Err(AstError {
-                at: fat,
-                message: "unknown or implemented type".to_string(),
-            }),
+            _ => err(at, "unknown or not implemented type"),
         }
     }
 }

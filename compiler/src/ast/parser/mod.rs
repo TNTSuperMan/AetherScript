@@ -1,6 +1,6 @@
 use crate::{
-    ast::{self, ModuleStatement, parser::error::AstError},
-    lexer,
+    ast::{Module, ModuleStatement, parser::error::AstError},
+    lexer::{Token, TokenKind, WordSymbol},
 };
 use std::{iter::Peekable, vec::IntoIter};
 
@@ -19,7 +19,7 @@ pub(super) fn eof_err() -> AstError {
 macro_rules! next_tok {
     ($iter: expr) => {
         match $iter.next() {
-            Some(lexer::Token { at, kind }) => Ok((at, kind)),
+            Some($crate::lexer::Token { at, kind }) => Ok((at, kind)),
             None => Err($crate::ast::parser::eof_err()),
         }
     };
@@ -44,46 +44,36 @@ macro_rules! next_tok {
 }
 
 pub(crate) struct AstParser {
-    iter: Peekable<IntoIter<lexer::Token>>,
-    module: ast::Module,
+    iter: Peekable<IntoIter<Token>>,
+    module: Module,
 }
 
 impl AstParser {
-    pub fn new(lexer: Vec<lexer::Token>) -> Self {
+    pub fn new(lexer: Vec<Token>) -> Self {
         Self {
             iter: lexer.into_iter().peekable(),
-            module: ast::Module { statements: vec![] },
+            module: Module { statements: vec![] },
         }
     }
     pub fn parse(&mut self) -> Result<(), AstError> {
         while let Some(tok) = self.iter.next() {
             let stmt = match tok.kind {
-                lexer::TokenKind::WordSymbol(w) => match w {
-                    lexer::WordSymbol::Function => {
+                TokenKind::WordSymbol(w) => match w {
+                    WordSymbol::Function => {
                         ModuleStatement::Func(self.parse_fn_base(vec![], false, false)?)
                     }
-                    lexer::WordSymbol::Struct => todo!(),
-                    lexer::WordSymbol::Enum => todo!(),
-                    lexer::WordSymbol::Impl => todo!(),
-                    _ => {
-                        return Err(AstError {
-                            at: tok.at,
-                            message: "invalid word symbol".to_string(),
-                        });
-                    }
+                    WordSymbol::Struct => return AstError::todo("struct"),
+                    WordSymbol::Enum => return AstError::todo("enum"),
+                    WordSymbol::Impl => return AstError::todo("impl"),
+                    _ => return AstError::unex(tok.at),
                 },
-                _ => {
-                    return Err(AstError {
-                        at: tok.at,
-                        message: "invalid token".to_string(),
-                    });
-                }
+                _ => return AstError::unex(tok.at),
             };
             self.module.statements.push(stmt);
         }
         Ok(())
     }
-    pub fn take_ast(self) -> ast::Module {
+    pub fn take_ast(self) -> Module {
         self.module
     }
 }

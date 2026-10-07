@@ -4,7 +4,7 @@ use crate::{
         parser::AstParser,
         structs::{Enum, Impl, Struct},
     },
-    lexer,
+    lexer::Token,
 };
 pub use parser::error::AstError;
 
@@ -13,7 +13,7 @@ mod parser;
 pub mod structs;
 pub mod types;
 
-pub fn parse_to_ast(lexer: Vec<lexer::Token>) -> Result<Module, AstError> {
+pub fn parse_to_ast(lexer: Vec<Token>) -> Result<Module, AstError> {
     let mut parser = AstParser::new(lexer);
     parser.parse()?;
     Ok(parser.take_ast())
