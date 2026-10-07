@@ -19,10 +19,12 @@ pub fn parse_to_ast(lexer: Vec<Token>) -> Result<Module, AstError> {
     Ok(parser.take_ast())
 }
 
+#[derive(Clone, Debug)]
 pub struct Module {
     pub statements: Vec<ModuleStatement>,
 }
 
+#[derive(Clone, Debug)]
 pub enum ModuleStatement {
     Func(Func),
     Struct(Struct),

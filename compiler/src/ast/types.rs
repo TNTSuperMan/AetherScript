@@ -1,10 +1,12 @@
 use crate::interner::IdentifierId;
 
+#[derive(Clone, Debug)]
 pub enum Type {
     Primitive(PrimitiveType),
     Impritive { mutable: bool, typ: ImprimitiveType },
 }
 
+#[derive(Clone, Debug)]
 pub enum PrimitiveType {
     Smi,
     Float,
@@ -14,6 +16,7 @@ pub enum PrimitiveType {
     Unique,
 }
 
+#[derive(Clone, Debug)]
 pub enum ImprimitiveType {
     Array(Box<Type>),
     Tuple(Vec<Type>),
@@ -23,6 +26,7 @@ pub enum ImprimitiveType {
     },
 }
 
+#[derive(Clone, Debug)]
 pub struct GenericArg {
     pub name: IdentifierId,
     pub base: Option<(IdentifierId, Vec<Type>)>,

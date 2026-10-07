@@ -3,6 +3,7 @@ use crate::{
     interner::IdentifierId,
 };
 
+#[derive(Clone, Debug)]
 pub struct Func {
     pub attributes: Vec<FuncAttr>,
     pub is_async: bool,
@@ -15,24 +16,29 @@ pub struct Func {
     pub body: Vec<FuncStatement>,
 }
 
+#[derive(Clone, Debug)]
 pub enum FuncAttr {
     Inline(FuncInlineAttr),
     Unsafe,
     Impure,
 }
+#[derive(Clone, Debug)]
 pub enum FuncInlineAttr {
     Always,
     Auto,
     Never,
 }
+#[derive(Clone, Debug)]
 pub enum FuncUnsafeAttr {
     Pure,
 }
 
+#[derive(Clone, Debug)]
 pub struct FuncArg {
     pub mutable: bool,
     pub name: IdentifierId,
     pub var_type: Type,
 }
 
+#[derive(Clone, Debug)]
 pub enum FuncStatement {}
