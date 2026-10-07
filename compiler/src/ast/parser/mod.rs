@@ -6,16 +6,21 @@ use std::{iter::Peekable, vec::IntoIter};
 
 pub mod error;
 mod func;
+mod types;
+
+pub(super) fn eof_err() -> AstError {
+    AstError {
+        at: usize::MAX,
+        message: "eof reached during syntax".to_string(),
+    }
+}
 
 #[macro_export]
 macro_rules! next_tok {
     ($iter: expr) => {
         match $iter.next() {
             Some(lexer::Token { at, kind }) => Ok((at, kind)),
-            None => Err(AstError {
-                at: usize::MAX,
-                message: "eof reached during syntax".to_string(),
-            }),
+            None => Err($crate::ast::parser::eof_err()),
         }
     };
     ($iter: expr, $($pat: pat => $expr: expr),+) => {
