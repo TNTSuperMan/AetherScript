@@ -35,6 +35,7 @@ fn try_into_word_symbol(s: &str) -> Option<WordSymbol> {
         "str" => WordSymbol::Str,
         "bool" => WordSymbol::Bool,
         "unique" => WordSymbol::Unique,
+        "none" => WordSymbol::None,
         _ => return None,
     })
 }

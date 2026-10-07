@@ -20,6 +20,7 @@ impl AstParser {
                     WordSymbol::Str => PrimitiveType::Str,
                     WordSymbol::Bool => PrimitiveType::Bool,
                     WordSymbol::Unique => PrimitiveType::Unique,
+                    WordSymbol::None => PrimitiveType::None,
                     _ => return err(at, "unknown type"),
                 };
                 Ok(Type::Primitive(pt))

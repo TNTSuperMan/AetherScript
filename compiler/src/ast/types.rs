@@ -14,6 +14,7 @@ pub enum PrimitiveType {
     Str,
     Bool,
     Unique,
+    None,
 }
 
 #[derive(Clone, Debug)]

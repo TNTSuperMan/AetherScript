@@ -59,6 +59,7 @@ pub enum WordSymbol {
     Str,
     Bool,
     Unique,
+    None,
 }
 
 #[derive(Debug, Clone)]

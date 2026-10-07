@@ -3,7 +3,7 @@ use crate::{
         AstError,
         func::{Func, FuncArg, FuncAttr},
         parser::{AstParser, eof_err},
-        types::GenericArg,
+        types::{GenericArg, PrimitiveType, Type},
     },
     interner::IdentifierId,
     lexer::{Symbol, TokenKind, WordSymbol},
@@ -61,8 +61,15 @@ impl AstParser {
                 _ => return AstError::unex(tok.at),
             }
         }
-        next_tok!(self.iter, TokenKind::Symbol(Symbol::Colon) => {})?;
-        let return_type = self.parse_type()?;
+        let return_type = match next_tok!(self.iter)? {
+            (_, TokenKind::Symbol(Symbol::Colon)) => {
+                let typ = self.parse_type()?;
+                next_tok!(self.iter, TokenKind::Symbol(Symbol::OpenBrace) => {})?;
+                typ
+            }
+            (_, TokenKind::Symbol(Symbol::OpenBrace)) => Type::Primitive(PrimitiveType::None),
+            (i, _) => return AstError::unex(i),
+        };
 
         Ok(Func {
             attributes,
