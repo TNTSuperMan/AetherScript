@@ -82,7 +82,7 @@ impl AstParser {
                 self.iter.next();
                 break;
             } else {
-                return AstError::todo("fn body");
+                stmts.push(self.parse_stmt()?);
             }
         }
 

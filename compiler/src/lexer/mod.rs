@@ -53,6 +53,9 @@ pub enum WordSymbol {
     Enum,
     Impl,
 
+    If,
+    While,
+
     Smi,
     Float,
     Bigint,

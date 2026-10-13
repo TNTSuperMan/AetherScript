@@ -5,7 +5,9 @@ use crate::{
 use std::{iter::Peekable, vec::IntoIter};
 
 pub mod error;
+mod expr;
 mod func;
+mod stmt;
 mod types;
 
 pub(super) fn eof_err() -> AstError {

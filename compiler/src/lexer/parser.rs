@@ -29,6 +29,9 @@ fn try_into_word_symbol(s: &str) -> Option<WordSymbol> {
         "enum" => WordSymbol::Enum,
         "impl" => WordSymbol::Impl,
 
+        "while" => WordSymbol::While,
+        "if" => WordSymbol::If,
+
         "smi" => WordSymbol::Smi,
         "float" => WordSymbol::Float,
         "bigint" => WordSymbol::Bigint,
