@@ -72,20 +72,6 @@ impl AstParser {
             (i, _) => return AstError::unex(i),
         };
 
-        let mut stmts = vec![];
-        loop {
-            if let Some(Token {
-                kind: TokenKind::Symbol(Symbol::CloseBrace),
-                ..
-            }) = self.iter.peek()
-            {
-                self.iter.next();
-                break;
-            } else {
-                stmts.push(self.parse_stmt()?);
-            }
-        }
-
         Ok(Func {
             attributes,
             is_async,
@@ -95,7 +81,7 @@ impl AstParser {
             self_arg: None,
             args,
             return_type,
-            body: Block { stmts },
+            body: self.parse_block()?,
         })
     }
 }

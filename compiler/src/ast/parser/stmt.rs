@@ -1,23 +1,44 @@
 use crate::{
-    ast::{AstError, parser::AstParser, stmt::Stmt},
-    lexer::{TokenKind, WordSymbol},
+    ast::{
+        AstError,
+        parser::AstParser,
+        stmt::{Block, If, Stmt, While},
+    },
+    lexer::{Symbol, Token, TokenKind, WordSymbol},
     next_tok,
 };
 
 impl AstParser {
+    pub fn parse_block(&mut self) -> Result<Block, AstError> {
+        let mut stmts = vec![];
+        loop {
+            if let Some(Token {
+                kind: TokenKind::Symbol(Symbol::CloseBrace),
+                ..
+            }) = self.iter.peek()
+            {
+                self.iter.next();
+                break Ok(Block { stmts });
+            } else {
+                stmts.push(self.parse_stmt()?);
+            }
+        }
+    }
     pub fn parse_stmt(&mut self) -> Result<Stmt, AstError> {
         let (i, t) = next_tok!(self.iter)?;
         match t {
             TokenKind::WordSymbol(WordSymbol::If) => {
-                let condition = self.parse_expr()?;
-                return AstError::todo("if body");
+                Ok(Stmt::If(If {
+                    condition: self.parse_expr()?,
+                    then: self.parse_block()?,
+                    elses: None, // TODO: else
+                }))
             }
-            TokenKind::WordSymbol(WordSymbol::While) => {
-                let condition = self.parse_expr()?;
-                return AstError::todo("while body");
-            }
-            _ => todo!(),
+            TokenKind::WordSymbol(WordSymbol::While) => Ok(Stmt::While(While {
+                condition: self.parse_expr()?,
+                body: self.parse_block()?,
+            })),
+            _ => AstError::todo("expr"),
         }
-        AstError::todo("expr")
     }
 }

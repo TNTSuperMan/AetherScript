@@ -33,13 +33,13 @@ pub struct Assign {
 
 #[derive(Clone, Debug)]
 pub struct If {
-    condition: Expr,
-    then: Block,
-    elses: Option<Block>,
+    pub condition: Expr,
+    pub then: Block,
+    pub elses: Option<Block>,
 }
 
 #[derive(Clone, Debug)]
 pub struct While {
-    condition: Expr,
-    code: Block,
+    pub condition: Expr,
+    pub body: Block,
 }
