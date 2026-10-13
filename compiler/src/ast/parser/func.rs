@@ -81,7 +81,7 @@ impl AstParser {
             self_arg: None,
             args,
             return_type,
-            body: self.parse_block()?,
+            body: self.parse_block(true)?,
         })
     }
 }
