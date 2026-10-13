@@ -3,11 +3,10 @@ use crate::{
         AstError,
         func::{Func, FuncArg, FuncAttr},
         parser::{AstParser, eof_err},
-        stmt::Block,
         types::{GenericArg, PrimitiveType, Type},
     },
     interner::IdentifierId,
-    lexer::{Symbol, Token, TokenKind, WordSymbol},
+    lexer::{Symbol, TokenKind, WordSymbol},
     next_tok,
 };
 
