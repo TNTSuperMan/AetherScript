@@ -8,8 +8,10 @@ use crate::{
 };
 pub use parser::error::AstError;
 
+pub mod expr;
 pub mod func;
 mod parser;
+pub mod stmt;
 pub mod structs;
 pub mod types;
 

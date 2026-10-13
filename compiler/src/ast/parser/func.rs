@@ -3,6 +3,7 @@ use crate::{
         AstError,
         func::{Func, FuncArg, FuncAttr},
         parser::{AstParser, eof_err},
+        stmt::Block,
         types::{GenericArg, PrimitiveType, Type},
     },
     interner::IdentifierId,
@@ -71,7 +72,7 @@ impl AstParser {
             (i, _) => return AstError::unex(i),
         };
 
-        let mut body = vec![];
+        let mut stmts = vec![];
         loop {
             if let Some(Token {
                 kind: TokenKind::Symbol(Symbol::CloseBrace),
@@ -94,7 +95,7 @@ impl AstParser {
             self_arg: None,
             args,
             return_type,
-            body,
+            body: Block { stmts },
         })
     }
 }

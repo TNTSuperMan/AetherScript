@@ -1,5 +1,8 @@
 use crate::{
-    ast::types::{GenericArg, Type},
+    ast::{
+        stmt::Block,
+        types::{GenericArg, Type},
+    },
     interner::IdentifierId,
 };
 
@@ -13,7 +16,7 @@ pub struct Func {
     pub self_arg: Option<bool>,
     pub args: Vec<FuncArg>,
     pub return_type: Type,
-    pub body: Vec<FuncStatement>,
+    pub body: Block,
 }
 
 #[derive(Clone, Debug)]
@@ -39,6 +42,3 @@ pub struct FuncArg {
     pub name: IdentifierId,
     pub var_type: Type,
 }
-
-#[derive(Clone, Debug)]
-pub enum FuncStatement {}
