@@ -1,5 +1,8 @@
+use crate::lexer::Literal;
+
 #[derive(Clone, Debug)]
 pub enum Expr {
+    Literal(Literal),
     Call {
         callee: Box<Expr>,
         args: Vec<Expr>,
