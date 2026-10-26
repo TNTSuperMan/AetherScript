@@ -30,13 +30,13 @@ impl AstParser {
         })
     }
 
-    // 名前部分からパース
-    pub fn parse_fn_base(
+    pub fn parse_fn(
         &mut self,
         attributes: Vec<FuncAttr>,
         is_async: bool,
         is_unsafe: bool,
     ) -> Result<Func, AstError> {
+        next_tok!(self.iter, TokenKind::WordSymbol(WordSymbol::Function) => {})?;
         let (_, name) = next_tok!(self.iter, TokenKind::Identifier(name) => name)?;
 
         let generics: Vec<GenericArg> = match next_tok!(self.iter)? {

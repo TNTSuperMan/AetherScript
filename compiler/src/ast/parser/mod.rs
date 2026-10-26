@@ -58,17 +58,14 @@ impl AstParser {
         }
     }
     pub fn parse(&mut self) -> Result<(), AstError> {
-        while let Some(tok) = self.iter.next() {
+        while let Some(tok) = self.iter.peek() {
             let stmt = match tok.kind {
-                TokenKind::WordSymbol(w) => match w {
-                    WordSymbol::Function => {
-                        ModuleStatement::Func(self.parse_fn_base(vec![], false, false)?)
-                    }
-                    WordSymbol::Struct => return AstError::todo("struct"),
-                    WordSymbol::Enum => return AstError::todo("enum"),
-                    WordSymbol::Impl => return AstError::todo("impl"),
-                    _ => return AstError::unex(tok.at),
-                },
+                TokenKind::WordSymbol(WordSymbol::Function) => {
+                    ModuleStatement::Func(self.parse_fn(vec![], false, false)?)
+                }
+                TokenKind::WordSymbol(WordSymbol::Struct) => return AstError::todo("struct"),
+                TokenKind::WordSymbol(WordSymbol::Enum) => return AstError::todo("enum"),
+                TokenKind::WordSymbol(WordSymbol::Impl) => return AstError::todo("impl"),
                 _ => return AstError::unex(tok.at),
             };
             self.module.statements.push(stmt);
