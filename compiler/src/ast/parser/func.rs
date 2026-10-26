@@ -43,7 +43,9 @@ impl Parser for Func {
 
         let generics: Vec<GenericArg> = match next_tok!(iter)? {
             (_, TokenKind::Symbol(Symbol::OpenParen)) => vec![],
-            (_, TokenKind::Symbol(Symbol::Lt)) => return AstError::todo("generics"),
+            (_, TokenKind::Symbol(Symbol::Lt)) => {
+                parse_multi_tok(iter, GenericArg::parse, Symbol::Comma, Symbol::Gt)?
+            }
             (at, _) => return AstError::unex(at),
         };
 
