@@ -23,6 +23,11 @@ pub struct Token {
     pub kind: TokenKind,
     pub at: usize,
 }
+impl Token {
+    pub fn tuple(&self) -> (usize, &TokenKind) {
+        (self.at, &self.kind)
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum TokenKind {

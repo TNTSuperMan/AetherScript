@@ -68,11 +68,10 @@ impl Parser for Func {
                 _ => return AstError::unex(tok.at),
             }
         }
-        let return_type = match next_tok!(iter)? {
+        let return_type = match iter.peek().ok_or_else(eof_err)?.tuple() {
             (_, TokenKind::Symbol(Symbol::Colon)) => {
-                let typ = Type::parse(iter)?;
-                next_tok!(iter, TokenKind::Symbol(Symbol::OpenBrace) => {})?;
-                typ
+                iter.next();
+                Type::parse(iter)?
             }
             (_, TokenKind::Symbol(Symbol::OpenBrace)) => Type::Primitive(PrimitiveType::None),
             (i, _) => return AstError::unex(i),
@@ -87,7 +86,7 @@ impl Parser for Func {
             self_arg: None,
             args,
             return_type,
-            body: todo!(), // Block::parse(iter)?
+            body: Block::parse(iter)?,
         })
     }
 }
