@@ -30,7 +30,7 @@ impl Parser for Block {
 
 impl Parser for Stmt {
     fn parse(iter: &mut std::iter::Peekable<std::vec::IntoIter<Token>>) -> Result<Self, AstError> {
-        let (i, t) = next_tok!(iter)?;
+        let (_, t) = next_tok!(iter)?;
         match t {
             TokenKind::WordSymbol(WordSymbol::If) => {
                 Ok(Stmt::If(If {
