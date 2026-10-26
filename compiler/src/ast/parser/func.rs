@@ -56,7 +56,12 @@ impl AstParser {
                 }
                 TokenKind::WordSymbol(WordSymbol::Mut) | TokenKind::Identifier(_) => {
                     args.push(self.parse_funcarg()?);
-                    return AstError::todo("args");
+
+                    match next_tok!(self.iter)? {
+                        (_, TokenKind::Symbol(Symbol::CloseParen)) => break,
+                        (_, TokenKind::Symbol(Symbol::Dot)) => continue,
+                        (at, _) => return AstError::unex(at),
+                    }
                 }
                 _ => return AstError::unex(tok.at),
             }
