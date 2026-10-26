@@ -1,16 +1,18 @@
 use crate::{
     ast::{
         AstError,
-        parser::{AstParser, error::err},
+        parser::{Parser, error::err},
         types::{PrimitiveType, Type},
     },
     lexer::{TokenKind, WordSymbol},
     next_tok,
 };
 
-impl AstParser {
-    pub fn parse_type(&mut self) -> Result<Type, AstError> {
-        let (at, tok) = next_tok!(self.iter)?;
+impl Parser for Type {
+    fn parse(
+        iter: &mut std::iter::Peekable<std::vec::IntoIter<crate::lexer::Token>>,
+    ) -> Result<Self, AstError> {
+        let (at, tok) = next_tok!(iter)?;
         match tok {
             TokenKind::WordSymbol(w) => {
                 let pt = match w {

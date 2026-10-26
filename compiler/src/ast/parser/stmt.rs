@@ -1,45 +1,47 @@
 use crate::{
     ast::{
         AstError,
-        parser::AstParser,
+        expr::Expr,
+        parser::Parser,
         stmt::{Block, If, Stmt, While},
     },
     lexer::{Symbol, Token, TokenKind, WordSymbol},
     next_tok,
 };
 
-impl AstParser {
-    pub fn parse_block(&mut self, skip_openbrace: bool) -> Result<Block, AstError> {
-        if !skip_openbrace {
-            next_tok!(self.iter, TokenKind::Symbol(Symbol::OpenBrace) => {})?;
-        }
+impl Parser for Block {
+    fn parse(iter: &mut std::iter::Peekable<std::vec::IntoIter<Token>>) -> Result<Self, AstError> {
+        next_tok!(iter, TokenKind::Symbol(Symbol::OpenBrace) => {})?;
         let mut stmts = vec![];
         loop {
             if let Some(Token {
                 kind: TokenKind::Symbol(Symbol::CloseBrace),
                 ..
-            }) = self.iter.peek()
+            }) = iter.peek()
             {
-                self.iter.next();
+                iter.next();
                 break Ok(Block { stmts });
             } else {
-                stmts.push(self.parse_stmt()?);
+                stmts.push(Stmt::parse(iter)?);
             }
         }
     }
-    pub fn parse_stmt(&mut self) -> Result<Stmt, AstError> {
-        let (i, t) = next_tok!(self.iter)?;
+}
+
+impl Parser for Stmt {
+    fn parse(iter: &mut std::iter::Peekable<std::vec::IntoIter<Token>>) -> Result<Self, AstError> {
+        let (i, t) = next_tok!(iter)?;
         match t {
             TokenKind::WordSymbol(WordSymbol::If) => {
                 Ok(Stmt::If(If {
-                    condition: self.parse_expr()?,
-                    then: self.parse_block(false)?,
+                    condition: Expr::parse(iter)?,
+                    then: Block::parse(iter)?,
                     elses: None, // TODO: else
                 }))
             }
             TokenKind::WordSymbol(WordSymbol::While) => Ok(Stmt::While(While {
-                condition: self.parse_expr()?,
-                body: self.parse_block(false)?,
+                condition: Expr::parse(iter)?,
+                body: Block::parse(iter)?,
             })),
             _ => AstError::todo("another stmt"),
         }

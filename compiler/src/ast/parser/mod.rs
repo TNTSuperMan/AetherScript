@@ -1,5 +1,5 @@
 use crate::{
-    ast::{Module, ModuleStatement, parser::error::AstError},
+    ast::{Module, ModuleStatement, func::Func, parser::error::AstError},
     lexer::{Token, TokenKind, WordSymbol},
 };
 use std::{iter::Peekable, vec::IntoIter};
@@ -15,6 +15,10 @@ pub(super) fn eof_err() -> AstError {
         at: usize::MAX,
         message: "eof reached during syntax".to_string(),
     }
+}
+
+pub trait Parser: Sized {
+    fn parse(iter: &mut Peekable<IntoIter<Token>>) -> Result<Self, AstError>;
 }
 
 #[macro_export]
@@ -58,21 +62,29 @@ impl AstParser {
         }
     }
     pub fn parse(&mut self) -> Result<(), AstError> {
-        while let Some(tok) = self.iter.peek() {
-            let stmt = match tok.kind {
-                TokenKind::WordSymbol(WordSymbol::Function) => {
-                    ModuleStatement::Func(self.parse_fn(vec![], false, false)?)
-                }
-                TokenKind::WordSymbol(WordSymbol::Struct) => return AstError::todo("struct"),
-                TokenKind::WordSymbol(WordSymbol::Enum) => return AstError::todo("enum"),
-                TokenKind::WordSymbol(WordSymbol::Impl) => return AstError::todo("impl"),
-                _ => return AstError::unex(tok.at),
-            };
-            self.module.statements.push(stmt);
+        while self.iter.peek().is_some() {
+            self.module
+                .statements
+                .push(ModuleStatement::parse(&mut self.iter)?);
         }
         Ok(())
     }
     pub fn take_ast(self) -> Module {
         self.module
+    }
+}
+
+impl Parser for ModuleStatement {
+    fn parse(iter: &mut Peekable<IntoIter<Token>>) -> Result<Self, AstError> {
+        let tok = iter.peek().ok_or_else(eof_err)?;
+        match tok.kind {
+            TokenKind::WordSymbol(WordSymbol::Function) => {
+                Ok(ModuleStatement::Func(Func::parse(iter)?))
+            }
+            TokenKind::WordSymbol(WordSymbol::Struct) => AstError::todo("struct"),
+            TokenKind::WordSymbol(WordSymbol::Enum) => AstError::todo("enum"),
+            TokenKind::WordSymbol(WordSymbol::Impl) => AstError::todo("impl"),
+            _ => AstError::unex(tok.at),
+        }
     }
 }

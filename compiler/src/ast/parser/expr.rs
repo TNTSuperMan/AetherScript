@@ -1,12 +1,14 @@
 use crate::{
-    ast::{AstError, expr::Expr, parser::AstParser},
+    ast::{AstError, expr::Expr, parser::Parser},
     lexer::TokenKind,
     next_tok,
 };
 
-impl AstParser {
-    pub fn parse_expr(&mut self) -> Result<Expr, AstError> {
-        match next_tok!(self.iter)?.1 {
+impl Parser for Expr {
+    fn parse(
+        iter: &mut std::iter::Peekable<std::vec::IntoIter<crate::lexer::Token>>,
+    ) -> Result<Self, AstError> {
+        match next_tok!(iter)?.1 {
             TokenKind::Literal(literal) => Ok(Expr::Literal(literal)),
             _ => AstError::todo("another expr"),
         }
