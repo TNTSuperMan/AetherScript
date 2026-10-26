@@ -29,7 +29,7 @@ impl Token {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TokenKind {
     // Space,
     Identifier(IdentifierId),
@@ -38,7 +38,7 @@ pub enum TokenKind {
     Symbol(Symbol),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Literal {
     String(String),
     Smi(i32),
@@ -46,7 +46,7 @@ pub enum Literal {
     BigInt(String),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum WordSymbol {
     Let,
     Mut,
@@ -70,7 +70,7 @@ pub enum WordSymbol {
     None,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Symbol {
     Semi,         // ;
     Comma,        // ,

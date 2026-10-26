@@ -1,6 +1,6 @@
 use crate::{
     ast::{Module, ModuleStatement, func::Func, parser::error::AstError},
-    lexer::{Token, TokenKind, WordSymbol},
+    lexer::{Symbol, Token, TokenKind, WordSymbol},
 };
 use std::{iter::Peekable, vec::IntoIter};
 
@@ -19,6 +19,33 @@ pub(super) fn eof_err() -> AstError {
 
 pub trait Parser: Sized {
     fn parse(iter: &mut Peekable<IntoIter<Token>>) -> Result<Self, AstError>;
+}
+
+pub fn parse_multi_tok<T, F: FnMut(&mut Peekable<IntoIter<Token>>) -> Result<T, AstError>>(
+    iter: &mut Peekable<IntoIter<Token>>,
+    mut f: F,
+    sep: Symbol,
+    end: Symbol,
+) -> Result<Vec<T>, AstError> {
+    let sep = TokenKind::Symbol(sep);
+    let end = TokenKind::Symbol(end);
+    let mut toks = vec![];
+
+    if &iter.peek().ok_or_else(eof_err)?.kind == &end {
+        Ok(toks)
+    } else {
+        loop {
+            toks.push(f(iter)?);
+            let sep_tok = iter.next().ok_or_else(eof_err)?;
+            if &sep_tok.kind == &sep {
+                continue;
+            }
+            if &sep_tok.kind == &end {
+                break Ok(toks);
+            }
+            break AstError::unex(sep_tok.at);
+        }
+    }
 }
 
 #[macro_export]

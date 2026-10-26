@@ -2,7 +2,7 @@ use crate::{
     ast::{
         AstError,
         func::{Func, FuncArg},
-        parser::{Parser, eof_err},
+        parser::{Parser, eof_err, parse_multi_tok},
         stmt::Block,
         types::{GenericArg, PrimitiveType, Type},
     },
@@ -47,27 +47,8 @@ impl Parser for Func {
             (at, _) => return AstError::unex(at),
         };
 
-        let mut args = vec![];
+        let args = parse_multi_tok(iter, FuncArg::parse, Symbol::Comma, Symbol::CloseParen)?;
 
-        loop {
-            let tok = iter.peek().ok_or_else(eof_err)?;
-            match tok.kind {
-                TokenKind::Symbol(Symbol::CloseParen) => {
-                    iter.next();
-                    break;
-                }
-                TokenKind::WordSymbol(WordSymbol::Mut) | TokenKind::Identifier(_) => {
-                    args.push(FuncArg::parse(iter)?);
-
-                    match next_tok!(iter)? {
-                        (_, TokenKind::Symbol(Symbol::CloseParen)) => break,
-                        (_, TokenKind::Symbol(Symbol::Dot)) => continue,
-                        (at, _) => return AstError::unex(at),
-                    }
-                }
-                _ => return AstError::unex(tok.at),
-            }
-        }
         let return_type = match iter.peek().ok_or_else(eof_err)?.tuple() {
             (_, TokenKind::Symbol(Symbol::Colon)) => {
                 iter.next();
