@@ -30,5 +30,5 @@ pub enum ImprimitiveType {
 #[derive(Clone, Debug)]
 pub struct GenericArg {
     pub name: IdentifierId,
-    pub base: Option<(IdentifierId, Vec<Type>)>,
+    pub base: Option<Type>,
 }

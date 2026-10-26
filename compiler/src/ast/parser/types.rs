@@ -1,10 +1,10 @@
 use crate::{
     ast::{
         AstError,
-        parser::{Parser, error::err},
-        types::{PrimitiveType, Type},
+        parser::{Parser, eof_err, error::err},
+        types::{GenericArg, PrimitiveType, Type},
     },
-    lexer::{TokenKind, WordSymbol},
+    lexer::{Symbol, TokenKind, WordSymbol},
     next_tok,
 };
 
@@ -29,5 +29,22 @@ impl Parser for Type {
             }
             _ => err(at, "unknown or not implemented type"),
         }
+    }
+}
+
+impl Parser for GenericArg {
+    fn parse(
+        iter: &mut std::iter::Peekable<std::vec::IntoIter<crate::lexer::Token>>,
+    ) -> Result<Self, AstError> {
+        let (_, name) = next_tok!(iter, TokenKind::Identifier(id) => id)?;
+
+        let base = match iter.peek().ok_or_else(eof_err)?.tuple() {
+            (_, TokenKind::Symbol(Symbol::Colon)) => {
+                iter.next();
+                Some(Type::parse(iter)?)
+            }
+            _ => None,
+        };
+        Ok(GenericArg { name, base })
     }
 }
